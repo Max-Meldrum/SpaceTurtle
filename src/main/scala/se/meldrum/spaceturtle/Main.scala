@@ -18,7 +18,18 @@ package se.meldrum.spaceturtle
 
 import se.meldrum.spaceturtle.network.server.SpaceTurtleServer
 
+/** Main Starting Point of Program
+  *
+  * Starts the SpaceTurtle server on port 8080 by default,
+  * or by the port sent in by command line.
+  */
 
 object Main extends App {
-  SpaceTurtleServer.run(8080)
+  var port = None: Option[Int]
+
+  if (args.length > 0) {
+    port = Some(args(0).toInt)
+  }
+
+  SpaceTurtleServer.run(port.getOrElse(8080))
 }
