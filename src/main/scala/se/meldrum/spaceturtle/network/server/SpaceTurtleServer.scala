@@ -52,7 +52,7 @@ object SpaceTurtleServer extends LazyLogging {
     */
   def run(port: Int): Unit = {
     val bind = setupServer
-      .bind(8080)
+      .bind(port)
 
     val bindSetup = Try(bind.sync())
 
