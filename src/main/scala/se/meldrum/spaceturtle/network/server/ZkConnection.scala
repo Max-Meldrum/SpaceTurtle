@@ -18,14 +18,14 @@ package se.meldrum.spaceturtle.network.server
 
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
-import se.meldrum.spaceturtle.utils.zkConfig
+import se.meldrum.spaceturtle.utils.ZkConfig
 
 import scala.util.Try
 
 /**
   * Object which holds the ZooKeeper Curator client
  */
-object zkConnection extends zkConfig {
+object ZkConnection extends ZkConfig {
   val retryPolicy = new ExponentialBackoffRetry(1000, 3)
   val client = CuratorFrameworkFactory.newClient(host, retryPolicy)
 

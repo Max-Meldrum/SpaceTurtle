@@ -18,7 +18,7 @@ package se.meldrum.spaceturtle.utils
 
 import se.meldrum.spaceturtle.BaseSpec
 
-class zkConfigSpec extends BaseSpec with zkConfig {
+class ZkConfigSpec extends BaseSpec with ZkConfig {
 
   test("That valid zkConfig exists") {
     assert(port > 0 && port < 65535)

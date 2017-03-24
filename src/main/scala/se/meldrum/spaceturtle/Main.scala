@@ -17,7 +17,7 @@
 package se.meldrum.spaceturtle
 
 import com.typesafe.scalalogging.LazyLogging
-import se.meldrum.spaceturtle.network.server.{SpaceTurtleServer, zkConnection}
+import se.meldrum.spaceturtle.network.server.{SpaceTurtleServer, ZkConnection}
 
 import scala.util.{Failure, Success}
 
@@ -33,7 +33,7 @@ object Main extends App with LazyLogging {
     port = Some(args(0).toInt)
   }
 
-  zkConnection.connect() match {
+  ZkConnection.connect() match {
     case Success(_) => SpaceTurtleServer.run(port.getOrElse(8080))
     case Failure(e) => logger.error(e.toString)
   }

@@ -44,7 +44,7 @@ class SpaceTurtleServerHandler extends SimpleChannelInboundHandler[SocketChannel
   }
 
   override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable): Unit = {
-    logger.debug(ctx.toString)
+    logger.debug(cause.toString)
     ctx.close()
   }
 

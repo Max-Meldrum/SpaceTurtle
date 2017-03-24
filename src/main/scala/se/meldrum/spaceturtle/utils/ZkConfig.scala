@@ -21,7 +21,7 @@ package se.meldrum.spaceturtle.utils
   *
   * Fetches host and port from application.conf
   */
-trait zkConfig extends Config {
+trait ZkConfig extends Config {
   val host = config.getString("zookeeper.host")
   val port = config.getInt("zookeeper.port")
 }
