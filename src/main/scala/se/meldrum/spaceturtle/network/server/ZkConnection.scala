@@ -26,14 +26,23 @@ import scala.util.Try
   * Object which holds the ZooKeeper Curator client
  */
 object ZkConnection extends ZkConfig {
-  val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-  val client = CuratorFrameworkFactory.newClient(host, retryPolicy)
+  private val retryPolicy = new ExponentialBackoffRetry(1000, 3)
+  private val client = CuratorFrameworkFactory.newClient(host, retryPolicy)
 
   /** Attempts to connect to the ZooKeeper ensemble
     *
     * @return A Scala try which we can match on to see if connection succeeded
     */
-  def connect(): Try[Unit] = Try(client.start())
+  def connect(): Try[Unit] = {
+    Try {
+      client.start()
+      assert(client.getZookeeperClient.isConnected)
+    }
+  }
 
-
+  /** Closes CuratorFramework
+    *
+    * When we are done using the client, we need to close it
+    */
+  def close(): Unit = client.close()
 }

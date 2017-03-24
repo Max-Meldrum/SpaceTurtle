@@ -34,7 +34,10 @@ object Main extends App with LazyLogging {
   }
 
   ZkConnection.connect() match {
-    case Success(_) => SpaceTurtleServer.run(port.getOrElse(8080))
+    case Success(_) => {
+      ZkConnection.close()
+      SpaceTurtleServer.run(port.getOrElse(8080))
+    }
     case Failure(e) => logger.error(e.toString)
   }
 }
