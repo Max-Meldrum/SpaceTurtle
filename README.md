@@ -1,4 +1,6 @@
+[![Build Status](https://travis-ci.org/Max-Meldrum/SpaceTurtle.svg?branch=master)](https://travis-ci.org/Max-Meldrum/SpaceTurtle)
+
 # SpaceTurtle
 
-Plan is to create a library/interface for distributed consensus, that utilise a combination of Zab/Paxos/Raft.
+
 
