@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package se.meldrum.spaceturtle
+package se.meldrum.spaceturtle.utils
 
-import org.scalatest.FunSuite
+import se.meldrum.spaceturtle.BaseSpec
 
-/**
-  * Base Trait For All Testing
-  */
-trait BaseSpec extends FunSuite
 
+class SpaceTurtleConfigSpec extends BaseSpec with SpaceTurtleConfig {
+
+  test("That valid SpaceTurtleConfig exists") {
+    assert(spaceTurtleHost.isEmpty == false)
+    assert(spaceTurtleUser.isEmpty == false)
+    assert(spaceTurtlePort > 0 && spaceTurtlePort < 65535)
+  }
+}
