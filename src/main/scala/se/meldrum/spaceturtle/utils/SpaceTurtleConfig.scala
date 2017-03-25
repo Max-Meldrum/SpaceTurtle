@@ -16,15 +16,9 @@
 
 package se.meldrum.spaceturtle.utils
 
-/** ZooKeeper Config Trait
-  *
-  * Fetches host and port from application.conf
-  */
-trait ZkConfig extends Config {
-  val zkHost = config.getString("zookeeper.host")
-  val zkPort = config.getInt("zookeeper.port")
-  val zkConnectionTimeout = config.getInt("zookeeper.connectionTimeout")
-  val zkSessionTimeout = config.getInt("zookeeper.sessionTimeout")
-  val zkMaxReconnections = config.getInt("zookeeper.maxReconnections")
-  val zkNamespace = config.getString("zookeeper.namespace")
+
+trait SpaceTurtleConfig extends Config {
+  val spaceTurtleHost = config.getString("spaceturtle.host")
+  val spaceTurtlePort = config.getInt("spaceturtle.port")
+  val spaceTurtleUser = config.getString("spaceturtle.user")
 }
