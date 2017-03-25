@@ -21,7 +21,6 @@ import org.apache.zookeeper.CreateMode
 import se.meldrum.spaceturtle.network.client.ZkClient
 import se.meldrum.spaceturtle.utils.SpaceTurtleConfig
 
-import scala.util.Try
 
 /**
   * Object which holds the ZooKeeper Curator client
@@ -31,14 +30,10 @@ object ZkConnection extends LazyLogging with SpaceTurtleConfig {
 
   /** Attempts to connect to the ZooKeeper ensemble
     *
-    * @return A Scala Try which we can match on to see if connection succeeded
+    * If it fails, it will try using the RetryPolicy,
+    * the attempts are decided by zkMaxReconnections
     */
-  def connect(): Try[Unit] = {
-    Try {
-      zkClient.start()
-      assert(zkClient.getZookeeperClient.isConnected)
-    }
-  }
+  def connect(): Unit = zkClient.start()
 
   /** Closes CuratorFramework
     *
