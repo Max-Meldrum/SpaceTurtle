@@ -17,7 +17,8 @@
 package se.meldrum.spaceturtle
 
 import com.typesafe.scalalogging.LazyLogging
-import se.meldrum.spaceturtle.network.server.{SpaceTurtleServer, ZkConnection}
+import se.meldrum.spaceturtle.network.server.{SpaceTurtleServer, ZkConnection, ZkSetup}
+import se.meldrum.spaceturtle.utils.SpaceTurtleConfig
 
 import scala.util.{Failure, Success}
 
@@ -26,7 +27,7 @@ import scala.util.{Failure, Success}
   * Starts the SpaceTurtle server on port 8080 by default,
   * or by the port sent in by command line.
   */
-object Main extends App with LazyLogging {
+object Main extends App with LazyLogging with SpaceTurtleConfig {
   var port = None: Option[Int]
 
   if (args.length > 0) {
@@ -35,9 +36,11 @@ object Main extends App with LazyLogging {
 
   ZkConnection.connect() match {
     case Success(_) => {
-      ZkConnection.close()
-      SpaceTurtleServer.run(port.getOrElse(8080))
+      ZkSetup.run() // Creates needed Znodes if they don't exist
+      ZkConnection.joinCluster()
+      SpaceTurtleServer.run(port.getOrElse(spaceTurtlePort))
     }
     case Failure(e) => logger.error(e.toString)
   }
+
 }

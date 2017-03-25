@@ -16,12 +16,26 @@
 
 package se.meldrum.spaceturtle.utils
 
-import se.meldrum.spaceturtle.BaseSpec
+import java.io.{BufferedReader, InputStreamReader}
+import java.net.URL
+import scala.util.{Failure, Success, Try}
 
-class ZkConfigSpec extends BaseSpec with ZkConfig {
+object Util {
 
-  test("That valid zkConfig exists") {
-    assert(zkPort > 0 && zkPort < 65535)
-    assert(zkHost.isEmpty == false)
+  /** Fetch External IP
+    *
+    * @return Option[String] with either external IP or nothing
+    */
+  def getExternalIP(): Option[String] = {
+    val conn = Try {
+      val url = new URL("http://checkip.amazonaws.com")
+      val in = new BufferedReader(new InputStreamReader(url.openStream()))
+      // get IP
+      in.readLine()
+    }
+    conn match {
+      case Success(ip) => Some(ip)
+      case Failure(_) => None
+    }
   }
 }

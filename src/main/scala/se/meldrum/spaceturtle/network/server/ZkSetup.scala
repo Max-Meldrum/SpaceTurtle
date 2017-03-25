@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-package se.meldrum.spaceturtle.utils
+package se.meldrum.spaceturtle.network.server
 
-import se.meldrum.spaceturtle.BaseSpec
+import se.meldrum.spaceturtle.network.client.ZkClient
 
-class ZkConfigSpec extends BaseSpec with ZkConfig {
 
-  test("That valid zkConfig exists") {
-    assert(zkPort > 0 && zkPort < 65535)
-    assert(zkHost.isEmpty == false)
+object ZkSetup {
+  private val zkClient = ZkClient.zkCuratorFrameWork
+
+  def run(): Unit = {
+    createPath("/agents")
+  }
+
+  /** Creates Znode if not exists
+    *
+    * @param path target path
+    */
+  def createPath(path: String): Unit = {
+    val exists = zkClient.checkExists().forPath(path)
+    exists match {
+      case null => zkClient.create().forPath(path)
+      case _ =>
+    }
   }
 }

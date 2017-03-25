@@ -16,27 +16,27 @@
 
 package se.meldrum.spaceturtle.network.server
 
-import org.apache.curator.framework.CuratorFrameworkFactory
-import org.apache.curator.retry.ExponentialBackoffRetry
-import se.meldrum.spaceturtle.utils.ZkConfig
+import com.typesafe.scalalogging.LazyLogging
+import org.apache.zookeeper.CreateMode
+import se.meldrum.spaceturtle.network.client.ZkClient
+import se.meldrum.spaceturtle.utils.SpaceTurtleConfig
 
 import scala.util.Try
 
 /**
   * Object which holds the ZooKeeper Curator client
  */
-object ZkConnection extends ZkConfig {
-  private val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-  private val client = CuratorFrameworkFactory.newClient(host, retryPolicy)
+object ZkConnection extends LazyLogging with SpaceTurtleConfig {
+  val zkClient = ZkClient.zkCuratorFrameWork
 
   /** Attempts to connect to the ZooKeeper ensemble
     *
-    * @return A Scala try which we can match on to see if connection succeeded
+    * @return A Scala Try which we can match on to see if connection succeeded
     */
   def connect(): Try[Unit] = {
     Try {
-      client.start()
-      assert(client.getZookeeperClient.isConnected)
+      zkClient.start()
+      assert(zkClient.getZookeeperClient.isConnected)
     }
   }
 
@@ -44,5 +44,17 @@ object ZkConnection extends ZkConfig {
     *
     * When we are done using the client, we need to close it
     */
-  def close(): Unit = client.close()
+  private def close(): Unit = zkClient.close()
+
+
+  /** Join SpaceTurtle cluster
+    *
+    * Lets cluster know we are connected
+    */
+  def joinCluster(): Unit = {
+    val path = "/agents/" + spaceTurtleUser
+    val host = spaceTurtleHost.getBytes
+    // EPHEMERAL means the data will get deleted after session is lost
+    zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(path, host)
+  }
 }
