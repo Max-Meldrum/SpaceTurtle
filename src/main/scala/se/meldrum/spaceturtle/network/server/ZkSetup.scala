@@ -16,21 +16,22 @@
 
 package se.meldrum.spaceturtle.network.server
 
-import se.meldrum.spaceturtle.network.client.ZkClient
+import com.typesafe.scalalogging.LazyLogging
+import org.apache.curator.framework.CuratorFramework
 
+object ZkSetup extends LazyLogging {
 
-object ZkSetup {
-  private val zkClient = ZkClient.zkCuratorFrameWork
-
-  def run(): Unit = {
+  def run()(implicit zkClient: CuratorFramework): Unit = {
+    logger.info("Creating znodes if they don't exist")
     createPath("/agents")
   }
 
   /** Creates Znode if not exists
     *
     * @param path target path
+    * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
-  def createPath(path: String): Unit = {
+  def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
     val exists = zkClient.checkExists().forPath(path)
     exists match {
       case null => zkClient.create().forPath(path)

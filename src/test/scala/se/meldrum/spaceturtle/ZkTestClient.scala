@@ -19,6 +19,7 @@ package se.meldrum.spaceturtle
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.curator.test.TestingServer
+import org.apache.zookeeper.data.Stat
 import se.meldrum.spaceturtle.utils.ZkConfig
 
 /** ZooKeeper Test Client
@@ -40,4 +41,28 @@ trait ZkTestClient extends ZkConfig {
   zkCuratorFrameWork.start()
 }
 
-object ZkTestClient extends ZkTestClient
+object ZkTestClient extends ZkTestClient {
+
+  /** Check if Znode path exists
+    *
+    * @param stat On null, it means we could not find the path
+    * @return True if it exist, otherwise false
+    */
+  def pathExists(stat: Stat): Boolean = {
+    stat match {
+      case null => false
+      case _ => true
+    }
+  }
+
+  def cleanZnodes(): Unit = {
+    // Agent node
+    zkCuratorFrameWork.delete().deletingChildrenIfNeeded().forPath("/agents")
+  }
+
+  def nodeSetup(): Unit = {
+    // Agent node
+    zkCuratorFrameWork.create().forPath("/agents")
+  }
+
+}

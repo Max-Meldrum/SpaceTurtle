@@ -17,25 +17,29 @@
 package se.meldrum.spaceturtle.server
 
 import org.scalatest.BeforeAndAfter
+import se.meldrum.spaceturtle.network.server.{ZkConnection, ZkSetup}
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
-class ZkSetupSpec extends BaseSpec with BeforeAndAfter {
-  private val zkClient = ZkTestClient.zkCuratorFrameWork
+class ZkConnectionSpec extends BaseSpec with BeforeAndAfter {
+  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
 
   before {
-    //ZkTestClient.cleanZnodes()
+    ZkTestClient.nodeSetup()
   }
 
-  test("Check that Agents node gets created") {
-    val firstCheck = zkClient.checkExists().forPath("/agents")
-    assert(ZkTestClient.pathExists(firstCheck) == false)
-
-    val agentNode = zkClient.create().forPath("/agents")
-    assert(agentNode == "/agents")
-
-    val finalCheck = zkClient.checkExists().forPath("/agents")
-    assert(ZkTestClient.pathExists(finalCheck) == true)
+  after {
+    ZkTestClient.cleanZnodes()
   }
 
+  test("That agent joins cluster correctly") {
+    val user = "turtle"
+    val port = 2000
+    val host = "localhost"
+
+    ZkConnection.joinCluster(host, user, port)
+    val znodePath = "/agents"
+    val result = zkClient.checkExists().forPath(znodePath)
+    assert(ZkTestClient.pathExists(result))
+  }
 }
