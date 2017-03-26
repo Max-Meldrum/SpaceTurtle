@@ -38,7 +38,7 @@ class ZkConnectionSpec extends BaseSpec with BeforeAndAfter {
     val host = "localhost"
 
     ZkConnection.joinCluster(host, user, port)
-    val znodePath = "/agents"
+    val znodePath = "/agents/" + user
     val result = zkClient.checkExists().forPath(znodePath)
     assert(ZkTestClient.pathExists(result))
   }
