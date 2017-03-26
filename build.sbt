@@ -13,4 +13,16 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe" % "config" % "1.3.1"
 )
-    
+
+parallelExecution in Test := false
+
+testGrouping <<= definedTests in Test map { tests =>
+  tests.map { test =>
+    import Tests._
+    new Group(
+      name = test.name,
+      tests = Seq(test),
+      runPolicy = InProcess)
+  }.sortWith(_.name < _.name)
+}
+
