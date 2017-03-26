@@ -16,30 +16,54 @@
 
 package se.meldrum.spaceturtle.server
 
-import org.scalatest.BeforeAndAfter
-import se.meldrum.spaceturtle.network.server.{ZkConnection, ZkSetup}
+import org.scalatest.BeforeAndAfterAll
+import se.meldrum.spaceturtle.network.server.ZkConnection
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
-class ZkConnectionSpec extends BaseSpec with BeforeAndAfter {
+class ZkConnectionSpec extends BaseSpec with BeforeAndAfterAll {
   implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+  val user = "turtle"
+  val port = 2000
+  val host = "localhost"
+  val zNodePath = "/agents/" + user
 
-  before {
+  override def beforeAll(): Unit = {
     ZkTestClient.nodeSetup()
   }
 
-  after {
+  override def afterAll(): Unit = {
     ZkTestClient.cleanZnodes()
   }
 
-  test("That agent joins cluster correctly") {
-    val user = "turtle"
-    val port = 2000
-    val host = "localhost"
-
+  test("That agent joins cluster") {
     ZkConnection.joinCluster(host, user, port)
     val znodePath = "/agents/" + user
     val result = zkClient.checkExists().forPath(znodePath)
     assert(ZkTestClient.pathExists(result))
   }
+
+  test("That agent host and port name is correct") {
+    val byteData= zkClient.getData().forPath(zNodePath)
+    val zkData = new String(byteData)
+    val parsedZkData = zkData.split(" \\r?\\n")
+      .map(_.trim)
+      .mkString
+
+    val zNodeHost = parsedZkData.split("\\r?\\n")(0)
+      .split("Host=")
+      .mkString
+
+    val zNodePort= parsedZkData.split("\\r?\\n")(1)
+      .split("Port=")
+      .mkString
+
+    assert(zNodePort == port.toString)
+    assert(zNodeHost == host)
+  }
+
+  test("That we are using an empheral node") {
+    // TODO check that we have a session
+  }
+
 }

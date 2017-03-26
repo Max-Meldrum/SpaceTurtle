@@ -16,16 +16,11 @@
 
 package se.meldrum.spaceturtle.server
 
-import org.scalatest.BeforeAndAfter
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
-class ZkSetupSpec extends BaseSpec with BeforeAndAfter {
+class ZkSetupSpec extends BaseSpec {
   private val zkClient = ZkTestClient.zkCuratorFrameWork
-
-  before {
-    //ZkTestClient.cleanZnodes()
-  }
 
   test("Check that Agents node gets created") {
     val firstCheck = zkClient.checkExists().forPath("/agents")
