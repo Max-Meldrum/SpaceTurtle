@@ -16,20 +16,13 @@
 
 package se.meldrum.spaceturtle.utils
 
-import org.apache.curator.framework.CuratorFramework
+import se.meldrum.spaceturtle.BaseSpec
 
-object Util {
 
-  /** Check if Znode path exists
-    *
-    * @param path znode path
-    * @return True if it exist, otherwise false
-    */
-  def zkPathExists(path: String)(implicit zkClient: CuratorFramework): Boolean = {
-    val stat = Option(zkClient.checkExists().forPath(path))
-    stat match {
-      case None => false
-      case Some(_) => true
-    }
+class ZkPathsSpec extends BaseSpec with ZkPaths {
+
+  test("That ZooKeeper paths are correct") {
+    assert(agentPath == "/agents")
+    assert(spaceTurtleUserPath == "/agents/" + spaceTurtleUser)
   }
 }

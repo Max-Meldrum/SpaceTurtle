@@ -38,10 +38,11 @@ object ZkSetup extends LazyLogging with ZkPaths {
     * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
   private def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
-    val exists = zkClient.checkExists().forPath(path)
-    exists match {
-      case null => zkClient.create().forPath(path)
-      case _ => logger.info("Could not create path" + path)
+    val stat = Option(zkClient.checkExists().forPath(path))
+
+    stat match {
+      case None => zkClient.create().forPath(path)
+      case Some(_) => logger.info("Could not create path" + path)
     }
   }
 
@@ -51,10 +52,11 @@ object ZkSetup extends LazyLogging with ZkPaths {
     * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
   private def deleteZNode(path: String)(implicit zkClient: CuratorFramework): Unit = {
-    val exists = zkClient.checkExists().forPath(path)
-    exists match {
-      case null => logger.info("Tried deleting path that does not exist")
-      case _ => zkClient.delete().deletingChildrenIfNeeded().forPath(path)
+    val stat = Option(zkClient.checkExists().forPath(path))
+
+    stat match {
+      case None => logger.info("Tried deleting non existing path: " + path)
+      case Some(_) => zkClient.delete().deletingChildrenIfNeeded().forPath(path)
     }
   }
 }

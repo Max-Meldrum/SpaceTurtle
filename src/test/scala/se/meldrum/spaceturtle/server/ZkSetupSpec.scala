@@ -35,14 +35,12 @@ class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("Check that Agents node gets created") {
-    val firstCheck = zkClient.checkExists().forPath(agentPath)
-    assert(Util.zkPathExists(firstCheck) == false)
+    assert(Util.zkPathExists(agentPath) == false)
 
     val agentNode = zkClient.create().forPath(agentPath)
     assert(agentNode == "/agents")
 
-    val finalCheck = zkClient.checkExists().forPath(agentPath)
-    assert(Util.zkPathExists(finalCheck) == true)
+    assert(Util.zkPathExists(agentPath) == true)
   }
 
 }

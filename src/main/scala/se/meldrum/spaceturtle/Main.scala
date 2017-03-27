@@ -41,7 +41,7 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
   ZkConnection.zkClient.getZookeeperClient.isConnected match {
     case true => {
       implicit val zkClient = ZkConnection.zkClient
-      ZkSetup.run() // Creates needed Znodes if they don't exist
+      ZkSetup.run() // Create needed Znodes if they don't exist
       ZkConnection.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
       SpaceTurtleServer.run(port.getOrElse(spaceTurtlePort))
     }

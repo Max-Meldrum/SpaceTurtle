@@ -35,8 +35,7 @@ class ZkConnectionSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
 
   test("That agent joins cluster") {
     ZkConnection.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
-    val result = zkClient.checkExists().forPath(spaceTurtleUserPath)
-    assert(Util.zkPathExists(result))
+    assert(Util.zkPathExists(spaceTurtleUserPath))
   }
 
   test("That agent host and port name is correct") {
@@ -59,7 +58,17 @@ class ZkConnectionSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That we are using an empheral node") {
-    // TODO check that we have a session
+    val stat = Option(zkClient.checkExists().forPath(spaceTurtleUserPath))
+
+    stat match {
+      case None => fail("Could not get stat for " + spaceTurtleUserPath)
+      case Some(s) => {
+        Option(s.getEphemeralOwner) match {
+          case None => fail("We don't have a session, fail")
+          case Some(_) => assert(true)
+        }
+      }
+    }
   }
 
 }

@@ -16,20 +16,20 @@
 
 package se.meldrum.spaceturtle.utils
 
-import org.apache.curator.framework.CuratorFramework
+import org.scalatest.BeforeAndAfterAll
+import se.meldrum.spaceturtle.network.server.ZkSetup
+import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
-object Util {
 
-  /** Check if Znode path exists
-    *
-    * @param path znode path
-    * @return True if it exist, otherwise false
-    */
-  def zkPathExists(path: String)(implicit zkClient: CuratorFramework): Boolean = {
-    val stat = Option(zkClient.checkExists().forPath(path))
-    stat match {
-      case None => false
-      case Some(_) => true
-    }
+class UtilSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
+  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+
+  override def beforeAll(): Unit = {
+    ZkSetup.run()
   }
+
+  override def afterAll(): Unit = {
+    ZkSetup.clean()
+  }
+
 }
