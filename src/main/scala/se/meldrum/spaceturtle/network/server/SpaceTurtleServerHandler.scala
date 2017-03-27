@@ -25,6 +25,7 @@ import io.netty.util.ReferenceCountUtil
 
 import scala.util.{Failure, Success, Try}
 
+// $COVERAGE-OFF$Disabling highlighting by default until a workaround for https://issues.scala-lang.org/browse/SI-8596 is found
 class SpaceTurtleServerHandler extends SimpleChannelInboundHandler[SocketChannel] with LazyLogging {
 
   override def channelRead0(ctx: ChannelHandlerContext, msg: SocketChannel) =  ???

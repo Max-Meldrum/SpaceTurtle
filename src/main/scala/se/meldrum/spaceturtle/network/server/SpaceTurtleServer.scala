@@ -26,6 +26,7 @@ import io.netty.handler.logging.{LogLevel, LoggingHandler}
 
 import scala.util.{Failure, Success, Try}
 
+// $COVERAGE-OFF$Disabling highlighting by default until a workaround for https://issues.scala-lang.org/browse/SI-8596 is found
 object SpaceTurtleServer extends LazyLogging {
   private val bossGroup = new NioEventLoopGroup(1)
   private val workerGroup = new NioEventLoopGroup

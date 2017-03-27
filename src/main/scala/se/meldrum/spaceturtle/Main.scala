@@ -17,7 +17,8 @@
 package se.meldrum.spaceturtle
 
 import com.typesafe.scalalogging.LazyLogging
-import se.meldrum.spaceturtle.network.server.{SpaceTurtleServer, ZkConnection, ZkSetup}
+import se.meldrum.spaceturtle.network.client.ZkClient
+import se.meldrum.spaceturtle.network.server.{SpaceTurtleServer, ZkSetup}
 import se.meldrum.spaceturtle.utils.SpaceTurtleConfig
 
 
@@ -33,16 +34,18 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
     port = Some(args(0).toInt)
   }
 
-  ZkConnection.connect()
+  implicit val zkClient = ZkClient.zkCuratorFrameWork
+  ZkClient.connect()
 
   // To let it try to connect before checking connection status
   Thread.sleep(1000)
 
-  ZkConnection.zkClient.getZookeeperClient.isConnected match {
+  val connected = zkClient.getZookeeperClient.isConnected
+
+  connected match {
     case true => {
-      implicit val zkClient = ZkConnection.zkClient
       ZkSetup.run() // Create needed Znodes if they don't exist
-      ZkConnection.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
+      ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
       SpaceTurtleServer.run(port.getOrElse(spaceTurtlePort))
     }
     case false => logger.info("Failed to establish initial connection to ZooKeeper, shutting down")
