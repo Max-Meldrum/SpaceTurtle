@@ -18,24 +18,43 @@ package se.meldrum.spaceturtle.network.server
 
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.curator.framework.CuratorFramework
+import se.meldrum.spaceturtle.utils.ZkPaths
 
-object ZkSetup extends LazyLogging {
+object ZkSetup extends LazyLogging with ZkPaths {
 
   def run()(implicit zkClient: CuratorFramework): Unit = {
     logger.info("Creating znodes if they don't exist")
-    createPath("/agents")
+    createPath(agentPath)
   }
 
-  /** Creates Znode if not exists
+  def clean()(implicit zkClient: CuratorFramework): Unit = {
+    logger.info("Cleaning znodes, will force delete")
+    deleteZNode(agentPath)
+  }
+
+  /** Creates znode if not exists
     *
     * @param path target path
     * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
-  def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
+  private def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
     val exists = zkClient.checkExists().forPath(path)
     exists match {
       case null => zkClient.create().forPath(path)
-      case _ =>
+      case _ => logger.info("Could not create path" + path)
+    }
+  }
+
+  /** Deletes ZooKeeper znode
+    *
+    * @param path target path
+    * @param zkClient Allows us to easily call this function with the TestingServer as well
+    */
+  private def deleteZNode(path: String)(implicit zkClient: CuratorFramework): Unit = {
+    val exists = zkClient.checkExists().forPath(path)
+    exists match {
+      case null => logger.info("Tried deleting path that does not exist")
+      case _ => zkClient.delete().deletingChildrenIfNeeded().forPath(path)
     }
   }
 }

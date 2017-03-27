@@ -16,21 +16,33 @@
 
 package se.meldrum.spaceturtle.server
 
+import org.scalatest.BeforeAndAfterAll
+import se.meldrum.spaceturtle.network.server.ZkSetup
+import se.meldrum.spaceturtle.utils.{Util, ZkPaths}
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
-class ZkSetupSpec extends BaseSpec {
-  private val zkClient = ZkTestClient.zkCuratorFrameWork
+class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
+  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+
+  override def beforeAll(): Unit = {
+    // Clean before as we assume zookeeper is empty in first test
+    ZkSetup.clean()
+  }
+
+  override def afterAll(): Unit = {
+    ZkSetup.clean()
+  }
 
   test("Check that Agents node gets created") {
-    val firstCheck = zkClient.checkExists().forPath("/agents")
-    assert(ZkTestClient.pathExists(firstCheck) == false)
+    val firstCheck = zkClient.checkExists().forPath(agentPath)
+    assert(Util.zkPathExists(firstCheck) == false)
 
-    val agentNode = zkClient.create().forPath("/agents")
+    val agentNode = zkClient.create().forPath(agentPath)
     assert(agentNode == "/agents")
 
-    val finalCheck = zkClient.checkExists().forPath("/agents")
-    assert(ZkTestClient.pathExists(finalCheck) == true)
+    val finalCheck = zkClient.checkExists().forPath(agentPath)
+    assert(Util.zkPathExists(finalCheck) == true)
   }
 
 }

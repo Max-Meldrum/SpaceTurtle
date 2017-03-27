@@ -16,19 +16,10 @@
 
 package se.meldrum.spaceturtle.utils
 
-import org.apache.zookeeper.data.Stat
-
-object Util {
-
-  /** Check if Znode path exists
-    *
-    * @param stat On null, it means we could not find the path
-    * @return True if it exist, otherwise false
-    */
-  def zkPathExists(stat: Stat): Boolean = {
-    stat match {
-      case null => false
-      case _ => true
-    }
-  }
+/**
+  * ZooKeeper paths that SpaceTurtle uses
+  */
+trait ZkPaths extends SpaceTurtleConfig {
+  val agentPath = "/agents"
+  val spaceTurtleUserPath = "/agents/" + spaceTurtleUser
 }

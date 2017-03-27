@@ -20,13 +20,12 @@ import com.typesafe.scalalogging.LazyLogging
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.CreateMode
 import se.meldrum.spaceturtle.network.client.ZkClient
-import se.meldrum.spaceturtle.utils.SpaceTurtleConfig
-
+import se.meldrum.spaceturtle.utils.ZkPaths
 
 /**
   * Object which holds the ZooKeeper Curator client
  */
-object ZkConnection extends LazyLogging with SpaceTurtleConfig {
+object ZkConnection extends LazyLogging with ZkPaths {
   val zkClient = ZkClient.zkCuratorFrameWork
 
   /** Attempts to connect to the ZooKeeper ensemble
@@ -51,11 +50,10 @@ object ZkConnection extends LazyLogging with SpaceTurtleConfig {
     * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
   def joinCluster(host: String, user: String, port: Int)(implicit zkClient: CuratorFramework) : Unit = {
-    val path = "/agents/" + user
     val zHost = "Host=" + host + "\n"
     val zPort = "Port=" + port.toString
     val input = (zHost + zPort).getBytes
     // EPHEMERAL means the data will get deleted after session is lost
-    zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(path, input)
+    zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(spaceTurtleUserPath, input)
   }
 }
