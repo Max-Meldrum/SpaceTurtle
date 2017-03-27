@@ -26,3 +26,6 @@ testGrouping <<= definedTests in Test map { tests =>
   }.sortWith(_.name < _.name)
 }
 
+// SBT coverage
+coverageMinimum := 60
+coverageFailOnMinimum := true
