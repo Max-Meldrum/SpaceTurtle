@@ -40,7 +40,7 @@ object ZkUtils extends LazyLogging {
     * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
   def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
-    ZkUtils.pathExists(path) match {
+    pathExists(path) match {
       case true => logger.info("Path already exists: " + path)
       case false => zkClient.create().forPath(path)
     }
@@ -52,7 +52,7 @@ object ZkUtils extends LazyLogging {
     * @param zkClient Allows us to easily call this function with the TestingServer as well
     */
   def deleteZNode(path: String)(implicit zkClient: CuratorFramework): Unit = {
-    ZkUtils.pathExists(path) match {
+    pathExists(path) match {
       case true => zkClient.delete().deletingChildrenIfNeeded().forPath(path)
       case false => logger.info("Tried deleting a non existing path: " + path)
     }
