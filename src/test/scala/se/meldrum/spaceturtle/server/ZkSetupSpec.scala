@@ -18,7 +18,7 @@ package se.meldrum.spaceturtle.server
 
 import org.scalatest.BeforeAndAfterAll
 import se.meldrum.spaceturtle.network.server.ZkSetup
-import se.meldrum.spaceturtle.utils.{Util, ZkPaths}
+import se.meldrum.spaceturtle.utils.{ZkUtils, ZkPaths}
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
@@ -35,12 +35,12 @@ class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("Check that Agents node gets created") {
-    assert(Util.zkPathExists(agentPath) == false)
+    assert(ZkUtils.pathExists(agentPath) == false)
 
     val agentNode = zkClient.create().forPath(agentPath)
-    assert(agentNode == "/agents")
+    assert(agentNode == agentPath)
 
-    assert(Util.zkPathExists(agentPath) == true)
+    assert(ZkUtils.pathExists(agentPath) == true)
   }
 
 }

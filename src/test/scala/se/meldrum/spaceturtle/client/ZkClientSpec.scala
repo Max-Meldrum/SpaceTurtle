@@ -20,7 +20,7 @@ import org.scalatest.BeforeAndAfterAll
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 import se.meldrum.spaceturtle.network.client.ZkClient
 import se.meldrum.spaceturtle.network.server.ZkSetup
-import se.meldrum.spaceturtle.utils.{Util, ZkPaths}
+import se.meldrum.spaceturtle.utils.{ZkUtils, ZkPaths}
 
 import scala.util.{Failure, Success, Try}
 
@@ -38,7 +38,7 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
 
   test("That agent joins cluster") {
     ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
-    assert(Util.zkPathExists(spaceTurtleUserPath))
+    assert(ZkUtils.pathExists(spaceTurtleUserPath))
   }
 
   test("That agent host and port name is correct") {
