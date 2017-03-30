@@ -17,7 +17,6 @@
 package se.meldrum.spaceturtle.cli
 
 import se.meldrum.spaceturtle.network.client.ZkClient
-
 import scala.io.StdIn
 
 

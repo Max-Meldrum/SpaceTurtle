@@ -16,7 +16,6 @@
 
 package se.meldrum.spaceturtle.network.client
 
-import java.util
 
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry

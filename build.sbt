@@ -27,5 +27,5 @@ testGrouping <<= definedTests in Test map { tests =>
 }
 
 // SBT coverage
-coverageMinimum := 60
-coverageFailOnMinimum := true
+//coverageMinimum := 60
+//coverageFailOnMinimum := true
