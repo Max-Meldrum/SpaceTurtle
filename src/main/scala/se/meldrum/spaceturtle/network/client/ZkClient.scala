@@ -16,10 +16,14 @@
 
 package se.meldrum.spaceturtle.network.client
 
+import java.util
+
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.CreateMode
 import se.meldrum.spaceturtle.utils.{ZkConfig, ZkPaths}
+import scala.collection.JavaConverters._
+
 
 /** ZooKeeper Client
   *
@@ -39,6 +43,8 @@ trait ZkClient extends ZkConfig {
 
 object ZkClient extends ZkClient with ZkPaths {
 
+  type AgentAlias = String
+
   /** Attempts to connect to the ZooKeeper ensemble
     *
     * If it fails, it will try using the RetryPolicy,
@@ -52,13 +58,29 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param host IP/hostname to allow people to connect to us
     * @param user Username for cluster
     * @param port Port that our server listens on
-    * @param zkClient Allows us to easily call this function with the TestingServer as well
+    * @param zkClient Allows us to easily call this method with the TestingServer as well
     */
   def joinCluster(host: String, user: String, port: Int)(implicit zkClient: CuratorFramework) : Unit = {
     val zHost = "Host=" + host + "\n"
     val zPort = "Port=" + port.toString
+    val path = agentPath + "/" + user
     val input = (zHost + zPort).getBytes
     // EPHEMERAL means the data will get deleted after session is lost
-    zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(spaceTurtleUserPath, input)
+    zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(path, input)
+  }
+
+  /** Fetch active agents
+    *
+    * @param zkClient Allows us to easily call this method with the TestingServer as well
+    * @return list of agents represented in a case class
+    */
+  def getAgents()(implicit zkClient: CuratorFramework): List[AgentAlias] = {
+    // Ensure we are getting latest commits
+    zkClient.sync().forPath(agentPath)
+
+    zkClient.getChildren
+      .forPath(agentPath)
+      .asScala
+      .toList
   }
 }

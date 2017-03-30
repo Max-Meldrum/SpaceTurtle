@@ -82,4 +82,9 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
     }
   }
 
+  test ("That we can fetch a list of active agents") {
+    val agents = ZkClient.getAgents()
+    assert(!agents.isEmpty)
+  }
+
 }

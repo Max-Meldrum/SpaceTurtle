@@ -19,6 +19,7 @@ package se.meldrum.spaceturtle.utils
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.curator.framework.CuratorFramework
 
+
 object ZkUtils extends LazyLogging {
 
   /** Check if Znode path exists
