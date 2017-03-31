@@ -17,10 +17,11 @@
 package se.meldrum.spaceturtle.client
 
 import org.scalatest.BeforeAndAfterAll
+import se.meldrum.spaceturtle.cli.SpaceTurtleCli
 import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 import se.meldrum.spaceturtle.network.client.ZkClient
 import se.meldrum.spaceturtle.network.server.ZkSetup
-import se.meldrum.spaceturtle.utils.{ZkUtils, ZkPaths}
+import se.meldrum.spaceturtle.utils.{ZkPaths, ZkUtils}
 
 import scala.util.{Failure, Success, Try}
 
@@ -41,10 +42,8 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
     assert(ZkUtils.pathExists(spaceTurtleUserPath))
   }
 
-  test("That agent host and port name is correct") {
-    val byteData= zkClient.getData().forPath(spaceTurtleUserPath)
-    val zkData = new String(byteData)
-    val agent = ZkUtils.parseUserAgentNode(zkData)
+  test("That we can fetch agent information") {
+    val agent = ZkClient.getAgentInformation(spaceTurtleUserPath)
 
     assert(agent.port == spaceTurtlePort)
     assert(agent.hostName == spaceTurtleHost)
@@ -65,16 +64,22 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That our CuratorFramework is already started") {
-    val t = Try(zkClient.start())
+    val t = Try(ZkClient.connect())
     t match {
       case Success(_) => fail("We are already started, should end up in a fail")
       case Failure(e) => assert(ZkClient.isConnected())
     }
   }
 
-  test ("That we can fetch a list of active agents") {
-    val agents = ZkClient.getAgents()
+  test("That we can fetch a list of active agents") {
+    val agents = ZkClient.getAgentNames()
     assert(!agents.isEmpty)
+  }
+
+  test("That we can announce cluster message") {
+    val result = SpaceTurtleCli.sendMessage("Random")
+    // As we are connected as a session, there should be an agent avaiable and this is the mesasge we expect
+    assert(result == "Sending to agents")
   }
 
 }

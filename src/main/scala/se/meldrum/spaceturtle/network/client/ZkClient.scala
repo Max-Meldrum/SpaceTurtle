@@ -73,7 +73,7 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param zkClient ZooKeeper client
     * @return list of agents represented in a case class
     */
-  def getAgents()(implicit zkClient: CuratorFramework): List[AgentAlias] = {
+  def getAgentNames()(implicit zkClient: CuratorFramework): List[AgentAlias] = {
     // Ensure we are getting latest commits
     zkClient.sync().forPath(agentPath)
 
@@ -110,7 +110,7 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param zkClient ZooKeeper client
     */
   def announceClusterMessage(msg: String)(implicit zkClient: CuratorFramework): String = {
-    val agentNames = getAgents()
+    val agentNames = getAgentNames()
     val agents = agentNames.map(getAgentInformation(_))
     agents.isEmpty match {
       case true => "No available agents"

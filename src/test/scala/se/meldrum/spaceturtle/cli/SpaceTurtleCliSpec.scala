@@ -22,9 +22,16 @@ import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 class SpaceTurtleCliSpec extends BaseSpec {
   implicit val zkClient = ZkTestClient.zkCuratorFrameWork
 
-  test("CLI usage returns info") {
+  test("That CLI help returns correct information") {
     val usage = SpaceTurtleCli.getUsage().split("\n").toList
-    assert(List("<Available commands>", "list agents", "send msg <data>", "exit", "help") == usage)
+    val availableCommands = List(
+      "<Available commands>",
+      "list agents",
+      "send msg <data>",
+      "exit",
+      "help")
+
+    assert(availableCommands == usage)
   }
 
 }

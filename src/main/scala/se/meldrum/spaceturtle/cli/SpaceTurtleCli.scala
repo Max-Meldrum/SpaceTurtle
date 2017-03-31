@@ -77,7 +77,7 @@ object SpaceTurtleCli extends App {
     */
   def listAgents()(implicit zkClient: CuratorFramework): Unit = {
     ZkClient.isConnected() match {
-      case true => ZkClient.getAgents().foreach(println(_))
+      case true => ZkClient.getAgentNames().foreach(println(_))
       case false => println("Could not list agents because of connection failure")
     }
   }
