@@ -24,6 +24,7 @@ class SpaceTurtleConfigSpec extends BaseSpec with SpaceTurtleConfig {
   test("That valid SpaceTurtleConfig exists") {
     assert(spaceTurtleHost.isEmpty == false)
     assert(spaceTurtleUser.isEmpty == false)
+    assert(spaceTurtleStoragePath.isEmpty == false)
     assert(spaceTurtlePort > 0 && spaceTurtlePort < 65535)
   }
 }

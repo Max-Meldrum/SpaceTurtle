@@ -21,4 +21,5 @@ trait SpaceTurtleConfig extends Config {
   val spaceTurtleHost = config.getString("spaceturtle.host")
   val spaceTurtlePort = config.getInt("spaceturtle.port")
   val spaceTurtleUser = config.getString("spaceturtle.user")
+  val spaceTurtleStoragePath = config.getString("spaceturtle.storagePath")
 }
