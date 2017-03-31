@@ -86,10 +86,10 @@ object SpaceTurtleCli extends App {
     * @return returns list of commands that the user can perform
     */
   def getUsage(): String = {
-    "Available commands: " +
-      "\n" +
+    "<Available commands>\n" +
       "list agents\n" +
-      "exit"
+      "exit\n" +
+      "help"
   }
 
 
