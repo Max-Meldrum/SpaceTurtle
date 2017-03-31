@@ -109,9 +109,15 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param msg what is to be sent
     * @param zkClient ZooKeeper client
     */
-  def announceClusterMessage(msg: String)(implicit zkClient: CuratorFramework): Unit = {
+  def announceClusterMessage(msg: String)(implicit zkClient: CuratorFramework): String = {
     val agentNames = getAgents()
     val agents = agentNames.map(getAgentInformation(_))
-    agents.foreach(new SpaceTurtleClient(_).run(msg))
+    agents.isEmpty match {
+      case true => "No available agents"
+      case false => {
+        agents.foreach(new SpaceTurtleClient(_).run(msg))
+        "Sending to agents"
+      }
+    }
   }
 }

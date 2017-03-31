@@ -63,7 +63,7 @@ object SpaceTurtleCli extends App {
     while (serving && {cmd = StdIn.readLine("SpaceTurtle console: ").split(" "); cmd != null}) {
       cmd match {
         case Array("list", "agents") => listAgents()
-        case Array("send", "msg", msg: String) => sendMessage(msg)
+        case Array("send", "msg", msg: String) => println(sendMessage(msg))
         case Array("help") => println(getUsage())
         case Array("exit") => serving = false
         case _ => println("SpaceTurtle: Cannot recognize command, see help")
@@ -87,7 +87,7 @@ object SpaceTurtleCli extends App {
     * @param msg string containing message
     * @param zkClient ZooKeeper client
     */
-  def sendMessage(msg: String)(implicit zkClient: CuratorFramework): Unit =
+  def sendMessage(msg: String)(implicit zkClient: CuratorFramework): String =
     ZkClient.announceClusterMessage(msg)
 
 
