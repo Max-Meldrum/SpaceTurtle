@@ -34,7 +34,7 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
     port = Some(args(0).toInt)
   }
 
-  implicit val zkClient = ZkClient.zkCuratorFrameWork
+  implicit val zk = ZkClient.zkCuratorFrameWork
   ZkClient.connect()
 
   // To let it try to connect before checking connection status

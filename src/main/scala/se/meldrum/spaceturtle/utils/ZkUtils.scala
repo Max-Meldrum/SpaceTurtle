@@ -17,7 +17,7 @@
 package se.meldrum.spaceturtle.utils
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.curator.framework.CuratorFramework
+import se.meldrum.spaceturtle.network.client.ZkClient.ZooKeeperClient
 
 
 object ZkUtils extends LazyLogging {
@@ -27,8 +27,8 @@ object ZkUtils extends LazyLogging {
     * @param path znode path
     * @return True if it exist, otherwise false
     */
-  def pathExists(path: String)(implicit zkClient: CuratorFramework): Boolean = {
-    val stat = Option(zkClient.checkExists().forPath(path))
+  def pathExists(path: String)(implicit zk: ZooKeeperClient): Boolean = {
+    val stat = Option(zk.checkExists().forPath(path))
     stat match {
       case None => false
       case Some(_) => true
@@ -38,11 +38,11 @@ object ZkUtils extends LazyLogging {
   /** Creates znode if not exists
     *
     * @param path target path
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     */
-  def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
+  def createPath(path: String)(implicit zk: ZooKeeperClient) : Unit = {
     pathExists(path) match {
-      case false => zkClient.create().forPath(path)
+      case false => zk.create().forPath(path)
       case true => logger.info("Path already exists " + path)
     }
   }
@@ -50,11 +50,11 @@ object ZkUtils extends LazyLogging {
   /** Deletes ZooKeeper znode
     *
     * @param path target path
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     */
-  def deleteZNode(path: String)(implicit zkClient: CuratorFramework): Unit = {
+  def deleteZNode(path: String)(implicit zk: ZooKeeperClient): Unit = {
     pathExists(path) match {
-      case true => zkClient.delete().deletingChildrenIfNeeded().forPath(path)
+      case true => zk.delete().deletingChildrenIfNeeded().forPath(path)
       case false => logger.info("Tried deleting a non existing path: " + path)
     }
   }

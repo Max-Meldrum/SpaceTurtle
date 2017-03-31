@@ -17,16 +17,16 @@
 package se.meldrum.spaceturtle.network.server
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.curator.framework.CuratorFramework
+import se.meldrum.spaceturtle.network.client.ZkClient.ZooKeeperClient
 import se.meldrum.spaceturtle.utils.{ZkPaths, ZkUtils}
 
 object ZkSetup extends LazyLogging with ZkPaths {
 
-  def run()(implicit zkClient: CuratorFramework): Unit = {
+  def run()(implicit zk: ZooKeeperClient): Unit = {
     ZkUtils.createPath(agentPath)
   }
 
-  def clean()(implicit zkClient: CuratorFramework): Unit = {
+  def clean()(implicit zk: ZooKeeperClient): Unit = {
     ZkUtils.deleteZNode(agentPath)
   }
 }

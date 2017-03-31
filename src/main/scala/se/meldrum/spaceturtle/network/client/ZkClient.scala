@@ -23,7 +23,6 @@ import org.apache.zookeeper.CreateMode
 import se.meldrum.spaceturtle.utils.{Agent, ZkConfig, ZkPaths, ZkUtils}
 import scala.collection.JavaConverters._
 
-
 /** ZooKeeper Client
   *
   * Uses application.conf and CuratorFramework to build a
@@ -43,13 +42,14 @@ trait ZkClient extends ZkConfig {
 object ZkClient extends ZkClient with ZkPaths {
 
   type AgentAlias = String
+  type ZooKeeperClient = CuratorFramework
 
   /** Attempts to connect to the ZooKeeper ensemble
     *
     * If it fails, it will try using the RetryPolicy,
     * the attempts are decided by zkMaxReconnections
     */
-  def connect()(implicit zkClient: CuratorFramework): Unit = zkClient.start()
+  def connect()(implicit zk: ZooKeeperClient): Unit = zk.start()
 
 
   /** Joins SpaceTurtle cluster
@@ -57,27 +57,27 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param host IP/hostname to allow people to connect to us
     * @param user Username for cluster
     * @param port Port that our server listens on
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     */
-  def joinCluster(host: String, user: String, port: Int)(implicit zkClient: CuratorFramework) : Unit = {
+  def joinCluster(host: String, user: String, port: Int)(implicit zk: ZooKeeperClient) : Unit = {
     val zHost = "Host=" + host + "\n"
     val zPort = "Port=" + port.toString
     val path = agentPath + "/" + user
     val input = (zHost + zPort).getBytes
     // EPHEMERAL means the data will get deleted after session is lost
-    zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(path, input)
+    zk.create().withMode(CreateMode.EPHEMERAL).forPath(path, input)
   }
 
   /** Fetch active agents
     *
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     * @return list of agents represented in a case class
     */
-  def getAgentNames()(implicit zkClient: CuratorFramework): List[AgentAlias] = {
+  def getAgentNames()(implicit zk: ZooKeeperClient): List[AgentAlias] = {
     // Ensure we are getting latest commits
-    zkClient.sync().forPath(agentPath)
+    zk.sync().forPath(agentPath)
 
-    zkClient.getChildren
+    zk.getChildren
       .forPath(agentPath)
       .asScala
       .toList
@@ -85,21 +85,21 @@ object ZkClient extends ZkClient with ZkPaths {
 
   /** Checks connection to ZooKeeper
     *
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     * @return true if connected, false otherwise
     */
-  def isConnected()(implicit zkClient: CuratorFramework): Boolean =
-    zkClient.getZookeeperClient.isConnected
+  def isConnected()(implicit zk: ZooKeeperClient): Boolean =
+    zk.getZookeeperClient.isConnected
 
 
   /** Fetch information for specified agent
     *
     * @param path target agent
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     * @return Agent case class with information about the target
     */
-  def getAgentInformation(path: String)(implicit zkClient: CuratorFramework): Agent = {
-    val byteData= zkClient.getData().forPath(spaceTurtleUserPath)
+  def getAgentInformation(path: String)(implicit zk: ZooKeeperClient): Agent = {
+    val byteData= zk.getData().forPath(spaceTurtleUserPath)
     val zkData = new String(byteData)
     ZkUtils.parseUserAgentNode(zkData)
   }
@@ -107,9 +107,9 @@ object ZkClient extends ZkClient with ZkPaths {
   /** Creates a socket connection to each client and sends msg
     *
     * @param msg what is to be sent
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     */
-  def announceClusterMessage(msg: String)(implicit zkClient: CuratorFramework): String = {
+  def announceClusterMessage(msg: String)(implicit zk: ZooKeeperClient): String = {
     val agentNames = getAgentNames()
     val agents = agentNames.map(getAgentInformation(_))
     agents.isEmpty match {
@@ -119,5 +119,15 @@ object ZkClient extends ZkClient with ZkPaths {
         "Sending to agents"
       }
     }
+  }
+
+  /** Send file to all agents in the cluster
+    *
+    * @param file The file
+    * @return
+    */
+  def sendFile(file: Array[Byte])(implicit zk: ZooKeeperClient): Unit = {
+    val agentNames = getAgentNames()
+    val agents = agentNames.map(getAgentInformation(_))
   }
 }

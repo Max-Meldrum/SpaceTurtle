@@ -22,7 +22,7 @@ import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
 class UtilSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
-  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+  implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   override def beforeAll(): Unit = {
     ZkSetup.run()

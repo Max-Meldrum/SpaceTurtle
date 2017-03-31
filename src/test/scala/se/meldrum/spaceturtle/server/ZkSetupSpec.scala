@@ -23,7 +23,7 @@ import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
 class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
-  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+  implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   override def beforeAll(): Unit = {
     // Clean before as we assume zookeeper is empty in first test
@@ -37,7 +37,7 @@ class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   test("Check that Agents node gets created") {
     assert(ZkUtils.pathExists(agentPath) == false)
 
-    val agentNode = zkClient.create().forPath(agentPath)
+    val agentNode = zk.create().forPath(agentPath)
     assert(agentNode == agentPath)
 
     assert(ZkUtils.pathExists(agentPath) == true)

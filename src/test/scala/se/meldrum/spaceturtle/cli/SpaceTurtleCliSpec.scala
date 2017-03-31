@@ -20,7 +20,7 @@ import se.meldrum.spaceturtle.{BaseSpec, ZkTestClient}
 
 
 class SpaceTurtleCliSpec extends BaseSpec {
-  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+  implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   test("That CLI help returns correct information") {
     val usage = SpaceTurtleCli.getUsage().split("\n").toList

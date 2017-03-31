@@ -16,9 +16,13 @@
 
 package se.meldrum.spaceturtle.cli
 
-import org.apache.curator.framework.CuratorFramework
+import java.nio.file.{Files, Paths}
+
 import se.meldrum.spaceturtle.network.client.ZkClient
-import scala.io.StdIn
+import se.meldrum.spaceturtle.network.client.ZkClient.ZooKeeperClient
+
+import scala.io.{Source, StdIn}
+import scala.util.{Failure, Success, Try}
 
 
 /** SpaceTurtle Command Line Client
@@ -43,10 +47,10 @@ object SpaceTurtleCli extends App {
 
   /** Starts client and checks ZooKeeper connection
     *
-    * @param zkClient CuratorFramework client we use to start connection with
+    * @param zk CuratorFramework client we use to start connection with
     * @return true on success, false otherwise
     */
-  def connectionEstablished()(implicit zkClient: CuratorFramework): Boolean = {
+  def connectionEstablished()(implicit zk: ZooKeeperClient): Boolean = {
     ZkClient.connect()
     Thread.sleep(300) // Let it try to connect
     ZkClient.isConnected()
@@ -54,9 +58,9 @@ object SpaceTurtleCli extends App {
 
   /** Handles the commands sent in by the user
     *
-    * @param zkClient Implicit CuratorFramework we pass by to other methods that use the client
+    * @param zk Implicit CuratorFramework we pass by to other methods that use the client
     */
-  def handleInput()(implicit zkClient: CuratorFramework): Unit = {
+  def handleInput()(implicit zk: ZooKeeperClient): Unit = {
     var cmd = Array[String]()
     var serving = true
 
@@ -64,6 +68,7 @@ object SpaceTurtleCli extends App {
       cmd match {
         case Array("list", "agents") => listAgents()
         case Array("send", "msg", msg: String) => println(sendMessage(msg))
+        case Array("send", "file", file: String) => sendFile(file)
         case Array("help") => println(getUsage())
         case Array("exit") => serving = false
         case _ => println("SpaceTurtle: Cannot recognize command, see help")
@@ -73,9 +78,9 @@ object SpaceTurtleCli extends App {
 
   /** Fetches active agents by name
     *
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     */
-  def listAgents()(implicit zkClient: CuratorFramework): Unit = {
+  def listAgents()(implicit zk: ZooKeeperClient): Unit = {
     ZkClient.isConnected() match {
       case true => ZkClient.getAgentNames().foreach(println(_))
       case false => println("Could not list agents because of connection failure")
@@ -85,9 +90,9 @@ object SpaceTurtleCli extends App {
   /** Send Custom Message to everyone
     *
     * @param msg string containing message
-    * @param zkClient ZooKeeper client
+    * @param zk ZooKeeper client
     */
-  def sendMessage(msg: String)(implicit zkClient: CuratorFramework): String =
+  def sendMessage(msg: String)(implicit zk: ZooKeeperClient): String =
     ZkClient.announceClusterMessage(msg)
 
 
@@ -101,6 +106,19 @@ object SpaceTurtleCli extends App {
       "send msg <data>\n" +
       "exit\n" +
       "help"
+  }
+
+  def sendFile(path: String)(implicit zk: ZooKeeperClient): Unit = {
+    val fileRead = Try(Files.readAllBytes(Paths.get(path)))
+
+    fileRead match {
+      case Success(file) => {
+        println(file.length)
+        ZkClient.sendFile(file)
+        println("Could read")
+      }
+      case Failure(e) => println(e.toString)
+    }
   }
 
 }

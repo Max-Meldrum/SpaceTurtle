@@ -27,7 +27,7 @@ import scala.util.{Failure, Success, Try}
 
 
 class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
-  implicit val zkClient = ZkTestClient.zkCuratorFrameWork
+  implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   override def beforeAll(): Unit = {
     ZkSetup.run()
@@ -50,7 +50,7 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That we are using an empheral node") {
-    val stat = Option(zkClient.checkExists().forPath(spaceTurtleUserPath))
+    val stat = Option(zk.checkExists().forPath(spaceTurtleUserPath))
 
     stat match {
       case None => fail("Could not get stat for " + spaceTurtleUserPath)
