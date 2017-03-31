@@ -43,7 +43,7 @@ object ZkUtils extends LazyLogging {
   def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
     pathExists(path) match {
       case false => zkClient.create().forPath(path)
-      case true =>
+      case true => logger.info("Path already exists " + path)
     }
   }
 

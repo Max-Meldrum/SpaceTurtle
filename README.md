@@ -7,6 +7,11 @@
 Development ongoing.
 
 
+Set up ZooKeeper for development
+```
+$ docker run --name SpaceTurtle-ZooKeeper -d -p 2181:2181 bigstepinc/zookeeper-3.5.2
+```
+
 Run SpaceTurtle
 ```
 $ ./spaceTurtle.sh
