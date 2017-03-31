@@ -38,7 +38,7 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
   ZkClient.connect()
 
   // To let it try to connect before checking connection status
-  Thread.sleep(1000)
+  Thread.sleep(300)
 
   val connected = ZkClient.isConnected()
 
@@ -46,6 +46,7 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
     case true => {
       ZkSetup.run() // Create needed Znodes if they don't exist
       ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
+      logger.info("ZooKeeper session is now active")
       SpaceTurtleServer.run(port.getOrElse(spaceTurtlePort))
     }
     case false => logger.info("Failed to establish initial connection to ZooKeeper, shutting down")

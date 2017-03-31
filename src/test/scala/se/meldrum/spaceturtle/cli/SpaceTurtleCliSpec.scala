@@ -24,7 +24,7 @@ class SpaceTurtleCliSpec extends BaseSpec {
 
   test("CLI usage returns info") {
     val usage = SpaceTurtleCli.getUsage().split("\n").toList
-    assert(List("<Available commands>", "list agents", "exit", "help") == usage)
+    assert(List("<Available commands>", "list agents", "send msg <data>", "exit", "help") == usage)
   }
 
 }

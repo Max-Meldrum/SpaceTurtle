@@ -44,20 +44,10 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   test("That agent host and port name is correct") {
     val byteData= zkClient.getData().forPath(spaceTurtleUserPath)
     val zkData = new String(byteData)
-    val parsedZkData = zkData.split(" \\r?\\n")
-      .map(_.trim)
-      .mkString
+    val agent = ZkUtils.parseUserAgentNode(zkData)
 
-    val zNodeHost = parsedZkData.split("\\r?\\n")(0)
-      .split("Host=")
-      .mkString
-
-    val zNodePort= parsedZkData.split("\\r?\\n")(1)
-      .split("Port=")
-      .mkString
-
-    assert(zNodePort == spaceTurtlePort.toString)
-    assert(zNodeHost == spaceTurtleHost)
+    assert(agent.port == spaceTurtlePort)
+    assert(agent.hostName == spaceTurtleHost)
   }
 
   test("That we are using an empheral node") {

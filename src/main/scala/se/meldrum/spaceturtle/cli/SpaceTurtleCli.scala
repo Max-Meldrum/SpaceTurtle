@@ -48,7 +48,7 @@ object SpaceTurtleCli extends App {
     */
   def connectionEstablished()(implicit zkClient: CuratorFramework): Boolean = {
     ZkClient.connect()
-    Thread.sleep(1000) // Let it try to connect
+    Thread.sleep(300) // Let it try to connect
     ZkClient.isConnected()
   }
 
@@ -63,6 +63,7 @@ object SpaceTurtleCli extends App {
     while (serving && {cmd = StdIn.readLine("SpaceTurtle console: ").split(" "); cmd != null}) {
       cmd match {
         case Array("list", "agents") => listAgents()
+        case Array("send", "msg", msg: String) => sendMessage(msg)
         case Array("help") => println(getUsage())
         case Array("exit") => serving = false
         case _ => println("SpaceTurtle: Cannot recognize command, see help")
@@ -72,7 +73,7 @@ object SpaceTurtleCli extends App {
 
   /** Fetches active agents by name
     *
-    * @param zkClient CuratorFramework client we use to connect with ZooKeeper
+    * @param zkClient ZooKeeper client
     */
   def listAgents()(implicit zkClient: CuratorFramework): Unit = {
     ZkClient.isConnected() match {
@@ -81,6 +82,15 @@ object SpaceTurtleCli extends App {
     }
   }
 
+  /** Send Custom Message to everyone
+    *
+    * @param msg string containing message
+    * @param zkClient ZooKeeper client
+    */
+  def sendMessage(msg: String)(implicit zkClient: CuratorFramework): Unit =
+    ZkClient.announceClusterMessage(msg)
+
+
   /** SpaceTurtleCli Command Help
     *
     * @return returns list of commands that the user can perform
@@ -88,10 +98,9 @@ object SpaceTurtleCli extends App {
   def getUsage(): String = {
     "<Available commands>\n" +
       "list agents\n" +
+      "send msg <data>\n" +
       "exit\n" +
       "help"
   }
-
-
 
 }

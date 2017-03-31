@@ -23,11 +23,12 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.{LogLevel, LoggingHandler}
+import se.meldrum.spaceturtle.utils.SpaceTurtleConfig
 
 import scala.util.{Failure, Success, Try}
 
 // $COVERAGE-OFF$Disabling highlighting by default until a workaround for https://issues.scala-lang.org/browse/SI-8596 is found
-object SpaceTurtleServer extends LazyLogging {
+object SpaceTurtleServer extends LazyLogging with SpaceTurtleConfig {
   private val bossGroup = new NioEventLoopGroup(1)
   private val workerGroup = new NioEventLoopGroup
 
@@ -58,9 +59,13 @@ object SpaceTurtleServer extends LazyLogging {
     val bindSetup = Try(bind.sync())
 
     bindSetup match {
-      case Success(_) => bind.channel().closeFuture().sync() // On binding success: Block until channel closes
+      case Success(_) => {
+        logger.info("SpaceTurtle is now running on port " + spaceTurtlePort)
+        bind.channel().closeFuture().sync()// On binding success: Block until channel closes)
+      }
       case Failure(e) => logger.error(e.toString)
     }
+
     close()
   }
 

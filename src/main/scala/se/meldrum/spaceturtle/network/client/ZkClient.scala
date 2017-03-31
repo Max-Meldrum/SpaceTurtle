@@ -20,7 +20,7 @@ package se.meldrum.spaceturtle.network.client
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.CreateMode
-import se.meldrum.spaceturtle.utils.{ZkConfig, ZkPaths}
+import se.meldrum.spaceturtle.utils.{Agent, ZkConfig, ZkPaths, ZkUtils}
 import scala.collection.JavaConverters._
 
 
@@ -57,7 +57,7 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param host IP/hostname to allow people to connect to us
     * @param user Username for cluster
     * @param port Port that our server listens on
-    * @param zkClient Allows us to easily call this method with the TestingServer as well
+    * @param zkClient ZooKeeper client
     */
   def joinCluster(host: String, user: String, port: Int)(implicit zkClient: CuratorFramework) : Unit = {
     val zHost = "Host=" + host + "\n"
@@ -70,7 +70,7 @@ object ZkClient extends ZkClient with ZkPaths {
 
   /** Fetch active agents
     *
-    * @param zkClient Allows us to easily call this method with the TestingServer as well
+    * @param zkClient ZooKeeper client
     * @return list of agents represented in a case class
     */
   def getAgents()(implicit zkClient: CuratorFramework): List[AgentAlias] = {
@@ -85,10 +85,33 @@ object ZkClient extends ZkClient with ZkPaths {
 
   /** Checks connection to ZooKeeper
     *
-    * @param zkClient Allows us to easily call this method with the TestingServer as well
+    * @param zkClient ZooKeeper client
     * @return true if connected, false otherwise
     */
-  def isConnected()(implicit zkClient: CuratorFramework): Boolean = {
+  def isConnected()(implicit zkClient: CuratorFramework): Boolean =
     zkClient.getZookeeperClient.isConnected
+
+
+  /** Fetch information for specified agent
+    *
+    * @param path target agent
+    * @param zkClient ZooKeeper client
+    * @return Agent case class with information about the target
+    */
+  def getAgentInformation(path: String)(implicit zkClient: CuratorFramework): Agent = {
+    val byteData= zkClient.getData().forPath(spaceTurtleUserPath)
+    val zkData = new String(byteData)
+    ZkUtils.parseUserAgentNode(zkData)
+  }
+
+  /** Creates a socket connection to each client and sends msg
+    *
+    * @param msg what is to be sent
+    * @param zkClient ZooKeeper client
+    */
+  def announceClusterMessage(msg: String)(implicit zkClient: CuratorFramework): Unit = {
+    val agentNames = getAgents()
+    val agents = agentNames.map(getAgentInformation(_))
+    agents.foreach(new SpaceTurtleClient(_).run(msg))
   }
 }

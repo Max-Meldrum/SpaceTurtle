@@ -23,12 +23,10 @@ import se.meldrum.spaceturtle.utils.{ZkPaths, ZkUtils}
 object ZkSetup extends LazyLogging with ZkPaths {
 
   def run()(implicit zkClient: CuratorFramework): Unit = {
-    logger.info("Creating znodes if they don't exist")
     ZkUtils.createPath(agentPath)
   }
 
   def clean()(implicit zkClient: CuratorFramework): Unit = {
-    logger.info("Cleaning znodes, will force delete")
     ZkUtils.deleteZNode(agentPath)
   }
 }

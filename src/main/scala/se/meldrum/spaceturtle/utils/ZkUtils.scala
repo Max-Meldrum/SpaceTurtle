@@ -38,24 +38,46 @@ object ZkUtils extends LazyLogging {
   /** Creates znode if not exists
     *
     * @param path target path
-    * @param zkClient Allows us to easily call this function with the TestingServer as well
+    * @param zkClient ZooKeeper client
     */
   def createPath(path: String)(implicit zkClient: CuratorFramework) : Unit = {
     pathExists(path) match {
-      case true => logger.info("Path already exists: " + path)
       case false => zkClient.create().forPath(path)
+      case true =>
     }
   }
 
   /** Deletes ZooKeeper znode
     *
     * @param path target path
-    * @param zkClient Allows us to easily call this function with the TestingServer as well
+    * @param zkClient ZooKeeper client
     */
   def deleteZNode(path: String)(implicit zkClient: CuratorFramework): Unit = {
     pathExists(path) match {
       case true => zkClient.delete().deletingChildrenIfNeeded().forPath(path)
       case false => logger.info("Tried deleting a non existing path: " + path)
     }
+  }
+
+  /** Parse Znode Data
+    *
+    * @param zkData Data that has been fetched from a client.getData().forPath()
+    * @return Agent case class that holds information about the agent
+    */
+  def parseUserAgentNode(zkData: String): Agent = {
+    val parsedZkData = zkData.split(" \\r?\\n")
+      .map(_.trim)
+      .mkString
+
+    val agentHost = parsedZkData.split("\\r?\\n")(0)
+      .split("Host=")
+      .mkString
+
+    val agentPort = parsedZkData.split("\\r?\\n")(1)
+      .split("Port=")
+      .mkString
+
+    // TODO: Fetch username as well
+    Agent("hej", agentHost, agentPort.toInt)
   }
 }
