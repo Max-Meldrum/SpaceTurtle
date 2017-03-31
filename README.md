@@ -4,5 +4,32 @@
 
 # SpaceTurtle
 
+Development ongoing.
+
+
+Run SpaceTurtle
+```
+$ ./spaceTurtle.sh
+```
+
+Run SpaceTurtle command line client
+```
+$ ./spaceTurtleCli.sh
+```
+
+Run the tests with enabled coverage
+```
+$ sbt clean coverage test
+```
+
+To generate the coverage reports run
+```
+$ sbt coverageReport
+```
+
+
+
+
+
 
 
