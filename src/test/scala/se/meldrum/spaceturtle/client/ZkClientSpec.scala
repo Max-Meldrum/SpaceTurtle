@@ -78,7 +78,7 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
     val t = Try(zkClient.start())
     t match {
       case Success(_) => fail("We are already started, should end up in a fail")
-      case Failure(e) => assert(zkClient.getZookeeperClient.isConnected)
+      case Failure(e) => assert(ZkClient.isConnected())
     }
   }
 

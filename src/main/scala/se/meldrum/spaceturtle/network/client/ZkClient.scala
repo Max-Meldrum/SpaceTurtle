@@ -82,4 +82,13 @@ object ZkClient extends ZkClient with ZkPaths {
       .asScala
       .toList
   }
+
+  /** Checks connection to ZooKeeper
+    *
+    * @param zkClient Allows us to easily call this method with the TestingServer as well
+    * @return true if connected, false otherwise
+    */
+  def isConnected()(implicit zkClient: CuratorFramework): Boolean = {
+    zkClient.getZookeeperClient.isConnected
+  }
 }

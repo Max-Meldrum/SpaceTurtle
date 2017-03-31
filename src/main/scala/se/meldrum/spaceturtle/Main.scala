@@ -40,7 +40,7 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
   // To let it try to connect before checking connection status
   Thread.sleep(1000)
 
-  val connected = zkClient.getZookeeperClient.isConnected
+  val connected = ZkClient.isConnected()
 
   connected match {
     case true => {

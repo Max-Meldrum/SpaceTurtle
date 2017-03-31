@@ -49,7 +49,7 @@ object SpaceTurtleCli extends App {
   def connectionEstablished()(implicit zkClient: CuratorFramework): Boolean = {
     ZkClient.connect()
     Thread.sleep(1000) // Let it try to connect
-    zkClient.getZookeeperClient.isConnected
+    ZkClient.isConnected()
   }
 
   /** Handles the commands sent in by the user
@@ -75,7 +75,7 @@ object SpaceTurtleCli extends App {
     * @param zkClient CuratorFramework client we use to connect with ZooKeeper
     */
   def listAgents()(implicit zkClient: CuratorFramework): Unit = {
-    zkClient.getZookeeperClient.isConnected match {
+    ZkClient.isConnected() match {
       case true => ZkClient.getAgents().foreach(println(_))
       case false => println("Could not list agents because of connection failure")
     }
