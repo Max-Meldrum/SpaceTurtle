@@ -1,31 +1,29 @@
-name := "SpaceTurtle"
+name := "SpaceTurtle." + "root"
 
-version := "1.0"
-
-scalaVersion := "2.12.1"
-
-libraryDependencies ++= Seq(
-  "io.netty" % "netty-all" % "4.0.4.Final",
-  "org.apache.curator" % "curator-framework" % "3.3.0",
-  "org.apache.curator" % "curator-test" % "3.3.0",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "com.typesafe" % "config" % "1.3.1"
+lazy val commonSettings = Seq(
+  version := "0.1",
+  organization := "se.meldrum.spaceturtle",
+  scalaVersion := "2.12.1",
+  test in assembly := {}
 )
 
-parallelExecution in Test := false
+lazy val spaceturtle = (project in file("spaceturtle")).
+  settings(commonSettings: _*).
+  settings(
+    mainClass in assembly := Some("spaceturtle.Main"),
+    assemblyJarName in assembly := "SpaceTurtle.jar" ,
+    libraryDependencies ++= Dependencies.spaceTurtleDependencies
+  )
 
-testGrouping <<= definedTests in Test map { tests =>
-  tests.map { test =>
-    import Tests._
-    new Group(
-      name = test.name,
-      tests = Seq(test),
-      runPolicy = InProcess)
-  }.sortWith(_.name < _.name)
-}
+lazy val cli = (project in file("cli"))
+  .dependsOn(spaceturtle  % "test->test;compile->compile").
+  settings(commonSettings: _*).
+  settings(
+    mainClass in assembly := Some("cli.SpaceTurtleCli"),
+    assemblyJarName in assembly := "SpaceTurtleCli.jar",
+    libraryDependencies ++= Dependencies.cliDependencies
+  )
 
-// SBT coverage
-//coverageMinimum := 60
-//coverageFailOnMinimum := true
+lazy val root = (project in file(".")).
+  aggregate(cli, spaceturtle)
+
