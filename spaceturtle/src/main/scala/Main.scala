@@ -44,7 +44,10 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
       logger.info("ZooKeeper session is now active")
       SpaceTurtleServer.run(spaceTurtlePort)
     }
-    case false => logger.info("Failed to establish initial connection to ZooKeeper, shutting down")
+    case false => {
+      logger.info("Failed to establish initial connection to ZooKeeper, shutting down")
+      zk.close()
+    }
   }
 
 }
