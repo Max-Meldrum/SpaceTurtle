@@ -15,7 +15,7 @@
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="se.meldrum.spaceturtle" level="TRACE" />
+    <logger name="spaceturtle" level="TRACE" />
     <logger name="org.apache.curator" level="WARN" />
     <logger name="org.apache.zookeeper" level="WARN" />
     <logger name="org.apache.zookeeper.server" level="ERROR" />

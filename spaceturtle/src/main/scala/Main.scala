@@ -24,11 +24,10 @@ import utils.SpaceTurtleConfig
 
 /** Main Starting Point of Program
   *
-  * Starts the SpaceTurtle server on port 8080 by default,
-  * or by the port sent in by command line.
+  * Starts the SpaceTurtle server and joins the cluster,
+  * by creating a session to ZooKeeper
   */
 object Main extends App with LazyLogging with SpaceTurtleConfig {
-
 
   implicit val zk = ZkClient.zkCuratorFrameWork
   ZkClient.connect()
