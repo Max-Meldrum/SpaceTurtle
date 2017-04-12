@@ -13,3 +13,5 @@ testGrouping <<= definedTests in Test map { tests =>
       runPolicy = InProcess)
   }.sortWith(_.name < _.name)
 }
+
+logLevel in assembly := Level.Error

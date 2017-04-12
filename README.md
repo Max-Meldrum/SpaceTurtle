@@ -12,14 +12,19 @@ Set up ZooKeeper for development
 $ docker run --name SpaceTurtle-ZooKeeper -d -p 2181:2181 bigstepinc/zookeeper-3.5.2
 ```
 
-Run SpaceTurtle
+Compile SpaceTurtle
 ```
-$ ./spaceTurtle.sh
+$ ./compile.sh
+```
+
+Run SpaceTurtle 
+```
+$ ./bin/spaceTurtle.sh
 ```
 
 Run SpaceTurtle command line client
 ```
-$ ./spaceTurtleCli.sh
+$ ./bin/spaceTurtleCli.sh
 ```
 
 Run the tests with enabled coverage

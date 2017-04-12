@@ -27,5 +27,4 @@ lazy val cli = (project in file("cli"))
 lazy val root = (project in file(".")).
   aggregate(cli, spaceturtle)
 
-logLevel in assembly := Level.Error
 
