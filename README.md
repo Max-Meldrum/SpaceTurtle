@@ -38,6 +38,14 @@ $ sbt coverageReport
 ```
 
 
+# Tasks
+
+- [x] Join cluster through ZooKeeper
+- [ ] Set up auth to ZooKeeper
+- [ ] Set up SSL with Netty
+- [ ] Transfer files to agents
+
+
 
 
 
