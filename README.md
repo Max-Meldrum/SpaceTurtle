@@ -9,7 +9,7 @@ Development ongoing.
 
 Set up ZooKeeper for development
 ```
-$ docker run -d --name zookeeper -p 2181:2181 meldrum/docker-zookeeper-kerberos
+$ docker run -d --name zookeeper -h kerberos.example.com -p 2181:2181 meldrum/docker-zookeeper-kerberos
 ```
 
 Compile SpaceTurtle
