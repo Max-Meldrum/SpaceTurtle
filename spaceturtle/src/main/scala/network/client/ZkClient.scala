@@ -40,7 +40,7 @@ trait ZkClient extends ZkConfig {
     .retryPolicy(zkRetryPolicy)
     .sessionTimeoutMs(zkConnectionTimeout)
     .connectionTimeoutMs(zkSessionTimeout)
-      .aclProvider(new ACLProvider {
+    .aclProvider(new ACLProvider {
         override def getDefaultAcl: java.util.List[ACL] = ZooDefs.Ids.CREATOR_ALL_ACL
         override def getAclForPath(path: String): java.util.List[ACL] = ZooDefs.Ids.CREATOR_ALL_ACL
       })
@@ -142,7 +142,7 @@ object ZkClient extends ZkClient with ZkPaths {
     val agents = agentNames.map(getAgentInformation(_))
 
     agents.isEmpty match {
-      case true => "No available agents"
+      case true => // "No available agents"
       case false => {
         //agents.foreach(new SpaceTurtleClient().transferFile(f))
       }
