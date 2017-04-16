@@ -9,7 +9,7 @@ Development ongoing.
 
 Set up ZooKeeper for development
 ```
-$ docker run -d --name zookeeper -h kerberos.example.com -p 2181:2181 meldrum/docker-zookeeper-kerberos
+$ ./docker/zookeeper_setup.sh
 ```
 
 Compile SpaceTurtle
@@ -41,7 +41,7 @@ $ sbt coverageReport
 # Tasks
 
 - [x] Join cluster through ZooKeeper
-- [ ] Set up auth to ZooKeeper
+- [x] Set up auth to ZooKeeper
 - [ ] Set up SSL with Netty
 - [ ] Transfer files to agents
 
