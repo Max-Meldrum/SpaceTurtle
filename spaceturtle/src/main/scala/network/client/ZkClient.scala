@@ -17,12 +17,15 @@
 package spaceturtle.network.client
 
 
+import org.apache.curator.framework.api.ACLProvider
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
-import org.apache.zookeeper.CreateMode
+import org.apache.zookeeper.{CreateMode, ZooDefs}
+import org.apache.zookeeper.data.ACL
 import spaceturtle.utils._
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /** ZooKeeper Client
   *
@@ -37,6 +40,10 @@ trait ZkClient extends ZkConfig {
     .retryPolicy(zkRetryPolicy)
     .sessionTimeoutMs(zkConnectionTimeout)
     .connectionTimeoutMs(zkSessionTimeout)
+      .aclProvider(new ACLProvider {
+        override def getDefaultAcl: java.util.List[ACL] = ZooDefs.Ids.CREATOR_ALL_ACL
+        override def getAclForPath(path: String): java.util.List[ACL] = ZooDefs.Ids.CREATOR_ALL_ACL
+      })
     .build()
 }
 
@@ -60,13 +67,13 @@ object ZkClient extends ZkClient with ZkPaths {
     * @param port Port that our server listens on
     * @param zk ZooKeeper client
     */
-  def joinCluster(host: String, user: String, port: Int)(implicit zk: ZooKeeperClient) : Unit = {
+  def joinCluster(host: String, user: String, port: Int)(implicit zk: ZooKeeperClient) : Try[Unit] = {
     val zHost = "Host=" + host + "\n"
     val zPort = "Port=" + port.toString
     val path = agentPath + "/" + user
     val input = (zHost + zPort).getBytes
     // EPHEMERAL means the data will get deleted after session is lost
-    zk.create().withMode(CreateMode.EPHEMERAL).forPath(path, input)
+    Try(zk.create().withMode(CreateMode.EPHEMERAL).forPath(path, input))
   }
 
   /** Fetch active agents

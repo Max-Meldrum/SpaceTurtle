@@ -16,6 +16,7 @@
     </root>
 
     <logger name="spaceturtle" level="TRACE" />
+    <logger name="org.apache.zookeeper.login" level="ERROR" />
     <logger name="org.apache.curator" level="WARN" />
     <logger name="org.apache.zookeeper" level="WARN" />
     <logger name="org.apache.zookeeper.server" level="ERROR" />

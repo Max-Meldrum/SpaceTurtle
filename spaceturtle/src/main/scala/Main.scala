@@ -21,6 +21,8 @@ import network.client.ZkClient
 import network.server.{SpaceTurtleServer, ZkSetup}
 import utils.SpaceTurtleConfig
 
+import scala.util.{Failure, Success}
+
 
 /** Main Starting Point of Program
   *
@@ -40,14 +42,18 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
   connected match {
     case true => {
       ZkSetup.run() // Create needed Znodes if they don't exist
-      ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
-      logger.info("ZooKeeper session is now active")
-      SpaceTurtleServer.run(spaceTurtlePort)
+      ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort) match {
+        case Success(_) => {
+          logger.info("ZooKeeper session is now active")
+          SpaceTurtleServer.run(spaceTurtlePort)
+        }
+        case Failure(e) => logger.error("ZooKeeper session is still alive, try again.")
+      }
     }
     case false => {
-      logger.info("Failed to establish initial connection to ZooKeeper, shutting down")
-      zk.close()
+      logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
     }
   }
 
+  zk.close()
 }
