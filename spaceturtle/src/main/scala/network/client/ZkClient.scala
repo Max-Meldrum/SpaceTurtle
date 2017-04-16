@@ -119,10 +119,8 @@ object ZkClient extends ZkClient with ZkPaths {
     */
   def announceClusterMessage(msg: String)(implicit zk: ZooKeeperClient): String = {
     val agentNames = getAgentNames()
-    val agents = agentNames.map(getAgentInformation)
-    agentNames.foreach { c =>
-      println
-    }
+    val agents = agentNames.map(name => getAgentInformation("/agents/" + name))
+
     agents.isEmpty match {
       case true => "No available agents"
       case false => {

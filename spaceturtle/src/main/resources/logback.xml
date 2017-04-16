@@ -20,5 +20,6 @@
     <logger name="org.apache.curator" level="WARN" />
     <logger name="org.apache.zookeeper" level="WARN" />
     <logger name="org.apache.zookeeper.server" level="ERROR" />
+    <logger name="io.netty.util.internal.logging.Slf4JLogger" level="TRACE" />
 
 </configuration>
