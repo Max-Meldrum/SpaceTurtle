@@ -1,3 +1,3 @@
 #! /bin/sh
 
-java -jar build/SpaceTurtleCli.jar
+java -jar -Dconfig.file=conf/spaceturtle.conf build/SpaceTurtleCli.jar
