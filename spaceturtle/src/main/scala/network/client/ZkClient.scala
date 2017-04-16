@@ -107,7 +107,7 @@ object ZkClient extends ZkClient with ZkPaths {
     * @return Agent case class with information about the target
     */
   def getAgentInformation(path: String)(implicit zk: ZooKeeperClient): Agent = {
-    val byteData= zk.getData().forPath(spaceTurtleUserPath)
+    val byteData= zk.getData().forPath(path)
     val zkData = new String(byteData)
     ZkUtils.parseUserAgentNode(zkData)
   }
