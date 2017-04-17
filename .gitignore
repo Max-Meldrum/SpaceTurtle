@@ -19,3 +19,6 @@ build/
 .scala_dependencies
 .worksheet
 .idea
+
+# SpaceTurtle
+conf/zookeeper-client.keytab
