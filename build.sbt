@@ -1,10 +1,18 @@
 name := "SpaceTurtle." + "root"
 
+
+
+
 lazy val commonSettings = Seq(
   version := "0.1",
   organization := "se.meldrum.spaceturtle",
   scalaVersion := "2.12.1",
-  test in assembly := {}
+  fork in run := true,
+  javaOptions in run ++= Seq(
+    "-Dconfig.file=../conf/spaceturtle.conf",
+    "-Djava.security.auth.login.config=../conf/jaas.conf",
+    "-Djava.security.krb5.conf=../conf/krb5.conf"
+  )
 )
 
 lazy val spaceturtle = (project in file("spaceturtle")).
@@ -21,7 +29,8 @@ lazy val cli = (project in file("cli"))
   settings(
     mainClass in assembly := Some("cli.SpaceTurtleCli"),
     assemblyJarName in assembly := "SpaceTurtleCli.jar",
-    libraryDependencies ++= Dependencies.cliDependencies
+    libraryDependencies ++= Dependencies.cliDependencies,
+    connectInput in run := true
   )
 
 lazy val root = (project in file(".")).

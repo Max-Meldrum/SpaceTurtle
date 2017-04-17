@@ -50,7 +50,7 @@ object SpaceTurtleCli extends App {
     */
   def connectionEstablished()(implicit zk: ZooKeeperClient): Boolean = {
     ZkClient.connect()
-    Thread.sleep(300) // Let it try to connect
+    Thread.sleep(500) // Let it try to connect
     ZkClient.isConnected()
   }
 
@@ -59,11 +59,10 @@ object SpaceTurtleCli extends App {
     * @param zk Implicit CuratorFramework we pass by to other methods that use the client
     */
   def handleInput()(implicit zk: ZooKeeperClient): Unit = {
-    var cmd = Array[String]()
     var serving = true
 
-    while (serving && {cmd = StdIn.readLine("SpaceTurtle console: ").split(" "); cmd != null}) {
-      cmd match {
+    while (serving) {
+      fetchLine() match {
         case Array("list", "agents") => listAgents()
         case Array("send", "msg", msg: String) => println(sendMessage(msg))
         case Array("send", "file", file: String) => sendFile(file)
@@ -73,6 +72,14 @@ object SpaceTurtleCli extends App {
       }
     }
   }
+
+  /** Fetches commands written by the client
+    *
+    * @return A space separated array with Strings
+    */
+  def fetchLine(): Array[String] = StdIn.readLine("SpaceTurtle console: ").split(" ")
+
+
 
   /** Fetches active agents by name
     *
