@@ -26,29 +26,43 @@ object Dependencies {
   val akkaHttpVersion = "10.0.5"
 
 
-  val spaceTurtleDependencies : Seq[ModuleID] = Seq(
-    "io.netty" % "netty-all" % nettyVersion,
-    "org.apache.curator" % "curator-framework" % curatorVersion,
-    "org.apache.curator" % "curator-test" % curatorVersion,
+  val logDependencies : Seq[ModuleID] = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-    "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-    "ch.qos.logback" % "logback-classic" % logbackVersion,
+    "ch.qos.logback" % "logback-classic" % logbackVersion
+  )
+
+  val confDependencies : Seq[ModuleID] = Seq(
     "com.typesafe" % "config" % typeConfigVersion
+  )
+
+  val testDependencies : Seq[ModuleID] = Seq(
+    "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
+  )
+
+  val curatorDependencies : Seq[ModuleID] = Seq(
+    "org.apache.curator" % "curator-framework" % curatorVersion,
+    "org.apache.curator" % "curator-test" % curatorVersion
+  )
+
+  // Common libs that are used together
+  val common : Seq[ModuleID] =
+    logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
+
+  val zookeeperDependencies: Seq[ModuleID] =
+    confDependencies ++ curatorDependencies
+
+  val spaceTurtleDependencies : Seq[ModuleID] = common ++ Seq(
+    "io.netty" % "netty-all" % nettyVersion
   )
 
   val cliDependencies : Seq[ModuleID] = spaceTurtleDependencies
 
-  val spaceTurtleMasterDependencies : Seq[ModuleID] = Seq(
+  val spaceTurtleMasterDependencies : Seq[ModuleID] = common ++ Seq(
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
-    "org.apache.curator" % "curator-framework" % curatorVersion,
-    "org.apache.curator" % "curator-test" % curatorVersion,
-    "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-    "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-    "ch.qos.logback" % "logback-classic" % logbackVersion,
-    "com.typesafe" % "config" % typeConfigVersion
-
+    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
   )
+
+
 
 }
