@@ -19,6 +19,8 @@ package cli
 import java.nio.file.{Files, Paths}
 import spaceturtle.network.client.ZkClient
 import spaceturtle.network.client.ZkClient.ZooKeeperClient
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.io.StdIn
 import scala.util.{Failure, Success, Try}
 
@@ -64,7 +66,11 @@ object SpaceTurtleCli extends App {
     while (serving) {
       fetchLine() match {
         case Array("list", "agents") => listAgents()
-        case Array("send", "msg", msg: String) => println(sendMessage(msg))
+        case Array("send", "msg", msg: String) => {
+          sendMessage(msg).onComplete { s =>
+            println(s.getOrElse("fail"))
+          }
+        }
         case Array("send", "file", file: String) => sendFile(file)
         case Array("help") => println(getUsage())
         case Array("exit") => serving = false
@@ -97,8 +103,8 @@ object SpaceTurtleCli extends App {
     * @param msg string containing message
     * @param zk ZooKeeper client
     */
-  def sendMessage(msg: String)(implicit zk: ZooKeeperClient): String =
-    ZkClient.announceClusterMessage(msg)
+  def sendMessage(msg: String)(implicit zk: ZooKeeperClient): Future[String] =
+    Future(ZkClient.announceClusterMessage(msg))
 
 
   /** SpaceTurtleCli Command Help

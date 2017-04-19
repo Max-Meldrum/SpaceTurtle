@@ -20,9 +20,7 @@ import com.typesafe.scalalogging.LazyLogging
 import network.client.ZkClient
 import network.server.{SpaceTurtleServer, ZkSetup}
 import utils.SpaceTurtleConfig
-
 import scala.util.{Failure, Success}
-
 
 /** Main Starting Point of Program
   *

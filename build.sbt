@@ -1,7 +1,11 @@
 name := "SpaceTurtle." + "root"
 
-
-
+lazy val masterSettings = Seq(
+  version := "0.1",
+  organization := "se.meldrum.spaceturtle",
+  scalaVersion := "2.12.1",
+  fork in run := true
+)
 
 lazy val commonSettings = Seq(
   version := "0.1",
@@ -33,7 +37,15 @@ lazy val cli = (project in file("cli"))
     connectInput in run := true
   )
 
+lazy val master = (project in file("master")).
+  settings(masterSettings: _*).
+  settings(
+    mainClass in assembly := Some("master.Master"),
+    assemblyJarName in assembly := "SpaceTurtleMaster.jar" ,
+    libraryDependencies ++= Dependencies.spaceTurtleMasterDependencies
+  )
+
 lazy val root = (project in file(".")).
-  aggregate(cli, spaceturtle)
+  aggregate(cli, spaceturtle, master)
 
 

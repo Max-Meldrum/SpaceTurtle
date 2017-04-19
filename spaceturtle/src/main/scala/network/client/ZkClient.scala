@@ -23,7 +23,6 @@ import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.{CreateMode, ZooDefs}
 import org.apache.zookeeper.data.ACL
 import spaceturtle.utils._
-
 import scala.collection.JavaConverters._
 import scala.util.Try
 
