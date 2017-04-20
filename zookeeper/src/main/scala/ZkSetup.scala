@@ -31,4 +31,11 @@ object ZkSetup extends ZkPaths {
     }
   }
 
+  def clean()(implicit zk: ZooKeeperClient): Unit = {
+    ZkClient.pathExists(agentPath) match {
+      case true => ZkClient.deleteZNode(agentPath)
+      case false =>
+    }
+  }
+
 }

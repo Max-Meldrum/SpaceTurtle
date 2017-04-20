@@ -16,8 +16,7 @@
 
 package cli
 
-import spaceturtle.BaseSpec
-
+import agent.BaseSpec
 
 class SpaceTurtleCliSpec extends BaseSpec {
 

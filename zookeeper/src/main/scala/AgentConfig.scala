@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package spaceturtle.utils
+package zookeeper
 
-/** ZooKeeper Config Trait
-  *
-  * Fetches host and port from application.conf
-  */
-trait ZkConfig extends Config {
-  val zkHost = config.getString("zookeeper.host")
-  val zkPort = config.getInt("zookeeper.port")
-  val zkConnectionTimeout = config.getInt("zookeeper.connectionTimeout")
-  val zkSessionTimeout = config.getInt("zookeeper.sessionTimeout")
-  val zkMaxReconnections = config.getInt("zookeeper.maxReconnections")
-  val zkNamespace = config.getString("zookeeper.namespace")
+trait AgentConfig extends Config {
+  val agentHost = config.getString("agent.host")
+  val agentUser = config.getString("agent.user")
 }

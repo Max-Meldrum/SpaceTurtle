@@ -1,6 +1,6 @@
-name := "SpaceTurtle." + "spaceturtle"
+name := "SpaceTurtle." + "agent"
 
-mainClass in (Compile, run) := Some("spaceturtle.Main")
+mainClass in (Compile, run) := Some("agent.Main")
 
 parallelExecution in Test := false
 

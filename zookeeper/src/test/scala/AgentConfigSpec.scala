@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package spaceturlte.utils
+package zookeeper
 
-import spaceturtle.BaseSpec
-import spaceturtle.utils.Config
+class AgentConfigSpec extends BaseSpec with AgentConfig {
 
-class ConfigSpec extends BaseSpec with Config {
-
-  test("That config file exists") {
-    assert(config.isEmpty == false)
+  test("Agent config loads correctly") {
+    assert(!agentHost.isEmpty)
+    assert(!agentUser.isEmpty)
   }
 }

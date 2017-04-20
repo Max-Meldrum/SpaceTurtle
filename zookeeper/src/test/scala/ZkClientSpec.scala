@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package spaceturtle.client
+package zookeeper
 
 import org.scalatest.BeforeAndAfterAll
-import spaceturtle.network.client.ZkClient
-import spaceturtle.network.server.ZkSetup
-import spaceturtle.utils.{ZkPaths, ZkUtils}
-import spaceturtle.{BaseSpec, ZkTestClient}
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 
 class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
@@ -36,22 +32,20 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That agent joins cluster") {
-    ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort)
-    assert(ZkUtils.pathExists(spaceTurtleUserPath))
+    ZkClient.joinCluster(agentHost, agentUser)
+    assert(ZkClient.pathExists(agentUserPath))
   }
 
   test("That we can fetch agent information") {
-    val agent = ZkClient.getAgentInformation(spaceTurtleUserPath)
-
-    assert(agent.port == spaceTurtlePort)
-    assert(agent.hostName == spaceTurtleHost)
+    val agent = ZkClient.getAgentInformation(agentUserPath)
+    assert(agent.host == agentHost)
   }
 
   test("That we are using an empheral node") {
-    val stat = Option(zk.checkExists().forPath(spaceTurtleUserPath))
+    val stat = Option(zk.checkExists().forPath(agentUserPath))
 
     stat match {
-      case None => fail("Could not get stat for " + spaceTurtleUserPath)
+      case None => fail("Could not get stat for " + agentUserPath)
       case Some(s) => {
         Option(s.getEphemeralOwner) match {
           case None => fail("We don't have a session, fail")
@@ -72,5 +66,10 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   test("That we can fetch a list of active agents") {
     val agents = ZkClient.getAgentNames()
     assert(!agents.isEmpty)
+  }
+
+  test("Parsing znode for agent host") {
+    val agent = ZkClient.getAgentInformation(agentUserPath)
+    assert(agent.host == agentHost)
   }
 }

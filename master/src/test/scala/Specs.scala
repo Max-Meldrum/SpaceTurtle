@@ -29,8 +29,6 @@ trait HttpSpec extends WordSpec with Matchers with ScalatestRouteTest with Befor
   val route = restService.route
 
   override def afterAll(): Unit = zkTestClient.close()
-  override def beforeAll(): Unit = zkTestClient.start()
-
 }
 
 

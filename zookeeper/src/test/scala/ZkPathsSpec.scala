@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package spaceturtle.utils
+package zookeeper
 
-import com.typesafe.config.ConfigFactory
+class ZkPathsSpec extends BaseSpec with ZkPaths with AgentConfig {
 
-/** Main Config Trait
-  *
-  * Loads application.conf into config
-  */
-trait Config {
-  val config = ConfigFactory.load()
+  test("That agent paths are correct") {
+    assert(agentPath == "/agents")
+    assert(agentUserPath == "/agents/" + agentUser)
+  }
 }

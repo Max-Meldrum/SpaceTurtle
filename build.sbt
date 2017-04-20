@@ -19,23 +19,25 @@ lazy val commonSettings = Seq(
   organization := "se.meldrum.spaceturtle",
   scalaVersion := "2.12.1",
   fork in run := true,
+  fork in Test := true,
   javaOptions in run ++= Seq(
-    "-Dconfig.file=../conf/spaceturtle.conf",
+    "-Dconfig.file=../conf/agent.conf",
     "-Djava.security.auth.login.config=../conf/jaas.conf",
     "-Djava.security.krb5.conf=../conf/krb5.conf"
   )
 )
 
-lazy val spaceturtle = (project in file("spaceturtle"))
+lazy val agent = (project in file("agent"))
+  .dependsOn(zookeeper % "test->test;compile->compile")
   .settings(commonSettings: _*)
   .settings(
-    mainClass in assembly := Some("spaceturtle.Main"),
-    assemblyJarName in assembly := "SpaceTurtle.jar" ,
-    libraryDependencies ++= Dependencies.spaceTurtleDependencies
+    mainClass in assembly := Some("agent.Main"),
+    assemblyJarName in assembly := "Agent.jar" ,
+    libraryDependencies ++= Dependencies.agentDependencies
   )
 
 lazy val cli = (project in file("cli"))
-  .dependsOn(spaceturtle  % "test->test;compile->compile")
+  .dependsOn(agent % "test->test;compile->compile")
   .settings(commonSettings: _*)
   .settings(
     mainClass in assembly := Some("cli.SpaceTurtleCli"),
@@ -49,8 +51,8 @@ lazy val master = (project in file("master"))
   .settings(masterSettings: _*)
   .settings(
     mainClass in assembly := Some("master.Master"),
-    assemblyJarName in assembly := "SpaceTurtleMaster.jar" ,
-    libraryDependencies ++= Dependencies.spaceTurtleMasterDependencies
+    assemblyJarName in assembly := "Master.jar" ,
+    libraryDependencies ++= Dependencies.masterDependencies
   )
 
 lazy val zookeeper = (project in file("zookeeper"))
@@ -60,6 +62,6 @@ lazy val zookeeper = (project in file("zookeeper"))
   )
 
 lazy val root = (project in file("."))
-  .aggregate(cli, master, spaceturtle, zookeeper)
+  .aggregate(cli, master, agent, zookeeper)
 
 

@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package spaceturtle.server
+package zookeeper
 
 import org.scalatest.BeforeAndAfterAll
-import spaceturtle.{BaseSpec, ZkTestClient}
-import spaceturtle.network.server.ZkSetup
-import spaceturtle.utils.{ZkPaths, ZkUtils}
-
 
 class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
@@ -35,12 +31,12 @@ class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("Check that Agents node gets created") {
-    assert(ZkUtils.pathExists(agentPath) == false)
+    assert(ZkClient.pathExists(agentPath) == false)
 
     val agentNode = zk.create().forPath(agentPath)
     assert(agentNode == agentPath)
 
-    assert(ZkUtils.pathExists(agentPath) == true)
+    assert(ZkClient.pathExists(agentPath) == true)
   }
-
 }
+

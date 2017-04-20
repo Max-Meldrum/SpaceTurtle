@@ -16,11 +16,8 @@
 
 package cli
 
-import java.nio.file.{Files, Paths}
-import spaceturtle.network.client.ZkClient
-import spaceturtle.network.client.ZkClient.ZooKeeperClient
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import zookeeper.ZkClient
+import zookeeper.ZkClient.ZooKeeperClient
 import scala.io.StdIn
 import scala.util.{Failure, Success, Try}
 
@@ -66,12 +63,6 @@ object SpaceTurtleCli extends App {
     while (serving) {
       fetchLine() match {
         case Array("list", "agents") => listAgents()
-        case Array("send", "msg", msg: String) => {
-          sendMessage(msg).onComplete { s =>
-            println(s.getOrElse("fail"))
-          }
-        }
-        case Array("send", "file", file: String) => sendFile(file)
         case Array("help") => println(getUsage())
         case Array("exit") => serving = false
         case _ => println("SpaceTurtle: Cannot recognize command, see help")
@@ -98,13 +89,6 @@ object SpaceTurtleCli extends App {
     }
   }
 
-  /** Send Custom Message to everyone
-    *
-    * @param msg string containing message
-    * @param zk ZooKeeper client
-    */
-  def sendMessage(msg: String)(implicit zk: ZooKeeperClient): Future[String] =
-    Future(ZkClient.announceClusterMessage(msg))
 
 
   /** SpaceTurtleCli Command Help
@@ -118,18 +102,4 @@ object SpaceTurtleCli extends App {
       "exit\n" +
       "help"
   }
-
-  def sendFile(path: String)(implicit zk: ZooKeeperClient): Unit = {
-    val fileRead = Try(Files.readAllBytes(Paths.get(path)))
-
-    fileRead match {
-      case Success(file) => {
-        println(file.length)
-        //ZkClient.sendFile(file)
-        println("Could read")
-      }
-      case Failure(e) => println(e.toString)
-    }
-  }
-
 }

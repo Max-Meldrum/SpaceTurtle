@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package spaceturtle.utils
+package zookeeper
 
-// SpaceTurtle Agent
-case class Agent(userName: String, hostName: String, port: Int)
+import org.scalatest.FunSuite
 
-// Case class for file and its information
-case class FileContainer(name: String, length: Int, file: Array[Byte])
+/**
+  * Base Trait For All Testing
+  */
+trait BaseSpec extends FunSuite

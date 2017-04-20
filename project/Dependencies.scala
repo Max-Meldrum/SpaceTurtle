@@ -48,16 +48,11 @@ object Dependencies {
   val common : Seq[ModuleID] =
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
-  val zookeeperDependencies: Seq[ModuleID] =
-    confDependencies ++ curatorDependencies ++ logDependencies
+  val zookeeperDependencies: Seq[ModuleID] = common
+  val agentDependencies : Seq[ModuleID] = common
+  val cliDependencies : Seq[ModuleID] = agentDependencies
 
-  val spaceTurtleDependencies : Seq[ModuleID] = common ++ Seq(
-    "io.netty" % "netty-all" % nettyVersion
-  )
-
-  val cliDependencies : Seq[ModuleID] = spaceTurtleDependencies
-
-  val spaceTurtleMasterDependencies : Seq[ModuleID] = common ++ Seq(
+  val masterDependencies : Seq[ModuleID] = common ++ Seq(
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion

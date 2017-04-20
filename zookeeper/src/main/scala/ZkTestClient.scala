@@ -35,6 +35,8 @@ trait ZkTestClient extends ZooKeeperConfig {
     .sessionTimeoutMs(zkConnectionTimeout)
     .connectionTimeoutMs(zkSessionTimeout)
     .build()
+
+  zkCuratorFrameWork.start()
 }
 
 object ZkTestClient extends ZkTestClient

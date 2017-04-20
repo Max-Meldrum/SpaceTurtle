@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package spaceturtle
+package zookeeper
 
-import org.scalatest.FunSuite
+import com.typesafe.config.ConfigFactory
 
-/**
-  * Base Trait For All Testing
-  */
-trait BaseSpec extends FunSuite
-
+trait Config {
+  val config = ConfigFactory.load()
+}

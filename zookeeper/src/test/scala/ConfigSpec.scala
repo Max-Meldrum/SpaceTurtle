@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package spaceturtle.network.server
+package zookeeper
 
-import com.typesafe.scalalogging.LazyLogging
-import spaceturtle.network.client.ZkClient.ZooKeeperClient
-import spaceturtle.utils.{ZkPaths, ZkUtils}
+class ConfigSpec extends BaseSpec with Config {
 
-object ZkSetup extends LazyLogging with ZkPaths {
-
-  def run()(implicit zk: ZooKeeperClient): Unit = {
-    ZkUtils.createPath(agentPath)
-  }
-
-  def clean()(implicit zk: ZooKeeperClient): Unit = {
-    ZkUtils.deleteZNode(agentPath)
+  test("Config exists") {
+    assert(!config.getConfig("agent").isEmpty)
+    assert(!config.getConfig("zookeeper").isEmpty)
   }
 }

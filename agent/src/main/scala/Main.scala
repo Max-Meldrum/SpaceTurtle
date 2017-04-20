@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package spaceturtle
+package agent
 
 import com.typesafe.scalalogging.LazyLogging
-import network.client.ZkClient
-import network.server.{SpaceTurtleServer, ZkSetup}
-import utils.SpaceTurtleConfig
+import zookeeper.{AgentConfig, ZkClient}
+
 import scala.util.{Failure, Success}
 
 /** Main Starting Point of Program
@@ -27,7 +26,7 @@ import scala.util.{Failure, Success}
   * Starts the SpaceTurtle server and joins the cluster,
   * by creating a session to ZooKeeper
   */
-object Main extends App with LazyLogging with SpaceTurtleConfig {
+object Main extends App with LazyLogging with AgentConfig {
 
   implicit val zk = ZkClient.zkCuratorFrameWork
   ZkClient.connect()
@@ -39,11 +38,9 @@ object Main extends App with LazyLogging with SpaceTurtleConfig {
 
   connected match {
     case true => {
-      ZkSetup.run() // Create needed Znodes if they don't exist
-      ZkClient.joinCluster(spaceTurtleHost, spaceTurtleUser, spaceTurtlePort) match {
+      ZkClient.joinCluster(agentHost, agentUser) match {
         case Success(_) => {
           logger.info("ZooKeeper session is now active")
-          SpaceTurtleServer.run(spaceTurtlePort)
         }
         case Failure(e) => logger.error("Error occured, " + e.toString)
       }

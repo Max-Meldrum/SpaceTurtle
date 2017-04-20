@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package spaceturtle.utils
+package zookeeper
 
-import spaceturtle.BaseSpec
+class ZooKeeperConfigSpec extends BaseSpec with ZooKeeperConfig {
 
-class ZkConfigSpec extends BaseSpec with ZkConfig {
-
-  test("That valid zkConfig exists") {
-    assert(zkPort > 0 && zkPort < 65535)
-    assert(zkHost.isEmpty == false)
+  test("ZooKeeper config loads correctly") {
+    assert(zkConnectionTimeout > 0)
+    assert(!zkHost.isEmpty)
+    assert(!zkNamespace.isEmpty)
+    assert(zkMaxReconnections > 0 && zkMaxReconnections < 20)
+    assert(zkPort == 2181)
+    assert(zkSessionTimeout > 0)
   }
 }

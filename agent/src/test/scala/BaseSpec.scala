@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package spaceturtle.utils
+package agent
 
-import spaceturtle.BaseSpec
+import org.scalatest.FunSuite
 
+/**
+  * Base Trait For All Testing
+  */
+trait BaseSpec extends FunSuite
 
-class ZkPathsSpec extends BaseSpec with ZkPaths {
-
-  test("That ZooKeeper paths are correct") {
-    assert(agentPath == "/agents")
-    assert(spaceTurtleUserPath == "/agents/" + spaceTurtleUser)
-  }
-}
