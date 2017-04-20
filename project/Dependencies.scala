@@ -49,7 +49,7 @@ object Dependencies {
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] =
-    confDependencies ++ curatorDependencies
+    confDependencies ++ curatorDependencies ++ logDependencies
 
   val spaceTurtleDependencies : Seq[ModuleID] = common ++ Seq(
     "io.netty" % "netty-all" % nettyVersion

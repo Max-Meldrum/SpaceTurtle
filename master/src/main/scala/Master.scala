@@ -22,24 +22,31 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.LazyLogging
 import http.RestService
 import utils.HttpConfig
-import zookeeper.ZkClient
+import zookeeper.{ZkClient, ZkSetup}
 
 object Master extends App with HttpConfig with LazyLogging {
+  implicit val zkClient = ZkClient.zkCuratorFrameWork
 
-  implicit val cf = ZkClient.zkCuratorFrameWork
-  cf.start()
-  Thread.sleep(1000)
+  httpSetup()
 
-  if (cf.getZookeeperClient.isConnected) {
-    println("Connected")
-  } else {
-    println("Not connected")
+  def zkConnect(): Boolean = {
+    ZkClient.connect()
+    Thread.sleep(1000)
+    ZkClient.isConnected()
   }
 
-  implicit val system = ActorSystem("Master")
-  implicit val materializer = ActorMaterializer()
-  val service = new RestService()
-  logger.info("Setting up SpaceTurtle Master on " + interface + ":" + port)
-  Http().bindAndHandle(service.route, interface , port)
-  cf.close()
+  def httpSetup(): Unit = {
+    zkConnect() match {
+      case true => {
+        ZkSetup.run()
+        implicit val system = ActorSystem("Master")
+        implicit val ec = system.dispatcher
+        implicit val materializer = ActorMaterializer()
+        val service = new RestService()
+        logger.info("Setting up SpaceTurtle Master on " + interface + ":" + port)
+        Http().bindAndHandle(service.route, interface , port)
+      }
+      case false => logger.error("Failed to establish connection to ZooKeeper")
+    }
+  }
 }

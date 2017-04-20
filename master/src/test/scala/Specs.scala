@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package zookeeper
+package master
 
-import com.typesafe.config.ConfigFactory
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import http.RestService
+import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers, WordSpec}
+import zookeeper.ZkTestClient
 
-/** ZooKeeper Config Trait
-    *
-    * Fetches host and port from application.conf
-    */
-trait ZooKeeperConfig {
-  val zkConfig = ConfigFactory.load()
-  val zkHost = zkConfig.getString("zookeeper.host")
-  val zkPort = zkConfig.getInt("zookeeper.port")
-  val zkConnectionTimeout = zkConfig.getInt("zookeeper.connectionTimeout")
-  val zkSessionTimeout = zkConfig.getInt("zookeeper.sessionTimeout")
-  val zkMaxReconnections = zkConfig.getInt("zookeeper.maxReconnections")
-  val zkNamespace = zkConfig.getString("zookeeper.namespace")
+trait BaseSpec extends FunSuite
+
+trait HttpSpec extends WordSpec with Matchers with ScalatestRouteTest with BeforeAndAfterAll {
+  implicit val zkTestClient = ZkTestClient.zkCuratorFrameWork
+  val restService = new RestService()
+  val route = restService.route
+
+  override def afterAll(): Unit = zkTestClient.close()
+  override def beforeAll(): Unit = zkTestClient.start()
+
 }
+
+

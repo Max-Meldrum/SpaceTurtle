@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package zookeeper
+package master.utils
 
-import com.typesafe.config.ConfigFactory
+import master.BaseSpec
 
-/** ZooKeeper Config Trait
-    *
-    * Fetches host and port from application.conf
-    */
-trait ZooKeeperConfig {
-  val zkConfig = ConfigFactory.load()
-  val zkHost = zkConfig.getString("zookeeper.host")
-  val zkPort = zkConfig.getInt("zookeeper.port")
-  val zkConnectionTimeout = zkConfig.getInt("zookeeper.connectionTimeout")
-  val zkSessionTimeout = zkConfig.getInt("zookeeper.sessionTimeout")
-  val zkMaxReconnections = zkConfig.getInt("zookeeper.maxReconnections")
-  val zkNamespace = zkConfig.getString("zookeeper.namespace")
+class HttpConfigSpec extends BaseSpec with HttpConfig {
+
+  test("Http config is loads correctly") {
+    assert(port > 0 && port <= 65535)
+    assert(!interface.isEmpty)
+  }
 }

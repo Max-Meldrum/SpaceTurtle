@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package master.utils
 
 import com.typesafe.config.ConfigFactory
 

@@ -16,18 +16,19 @@
 
 package zookeeper
 
-import com.typesafe.config.ConfigFactory
+import zookeeper.ZkClient.ZooKeeperClient
 
-/** ZooKeeper Config Trait
+object ZkSetup extends ZkPaths {
+
+  /** Set up znodes that we require
     *
-    * Fetches host and port from application.conf
+    * @param zk ZooKeeper client
     */
-trait ZooKeeperConfig {
-  val zkConfig = ConfigFactory.load()
-  val zkHost = zkConfig.getString("zookeeper.host")
-  val zkPort = zkConfig.getInt("zookeeper.port")
-  val zkConnectionTimeout = zkConfig.getInt("zookeeper.connectionTimeout")
-  val zkSessionTimeout = zkConfig.getInt("zookeeper.sessionTimeout")
-  val zkMaxReconnections = zkConfig.getInt("zookeeper.maxReconnections")
-  val zkNamespace = zkConfig.getString("zookeeper.namespace")
+  def run()(implicit zk: ZooKeeperClient): Unit = {
+    ZkClient.pathExists(agentPath) match {
+      case true =>
+      case false => ZkClient.createPath(agentPath)
+    }
+  }
+
 }

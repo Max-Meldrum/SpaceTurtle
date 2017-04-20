@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package http
+package master.http
 
 import akka.http.scaladsl.server.Directives._
+import master.http.routes.DomainRoute
+import zookeeper.ZkClient.ZooKeeperClient
 
-class RestService {
+import scala.concurrent.ExecutionContext
+
+class RestService()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient) {
+  private val domainRoute = new DomainRoute()
 
   val route =
-    pathPrefix("test") {
-      get  {
-        complete("hej")
+    pathPrefix("api") {
+      pathPrefix("v1") {
+        domainRoute.route
       }
     }
 }

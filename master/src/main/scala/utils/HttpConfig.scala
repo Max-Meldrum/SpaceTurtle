@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package master.utils
 
 trait HttpConfig extends Config {
   val interface = config.getString("http.interface")

@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package zookeeper
+package master.http
 
-import com.typesafe.config.ConfigFactory
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import spray.json.DefaultJsonProtocol
+import zookeeper.Agent
 
-/** ZooKeeper Config Trait
-    *
-    * Fetches host and port from application.conf
-    */
-trait ZooKeeperConfig {
-  val zkConfig = ConfigFactory.load()
-  val zkHost = zkConfig.getString("zookeeper.host")
-  val zkPort = zkConfig.getInt("zookeeper.port")
-  val zkConnectionTimeout = zkConfig.getInt("zookeeper.connectionTimeout")
-  val zkSessionTimeout = zkConfig.getInt("zookeeper.sessionTimeout")
-  val zkMaxReconnections = zkConfig.getInt("zookeeper.maxReconnections")
-  val zkNamespace = zkConfig.getString("zookeeper.namespace")
+/*
+ * JsonSupport helps to marshall our case classes into JSON
+ */
+object JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
+  implicit val agentFormat = jsonFormat1(Agent)
 }
