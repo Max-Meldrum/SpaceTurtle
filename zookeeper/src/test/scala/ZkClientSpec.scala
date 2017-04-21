@@ -22,6 +22,9 @@ import scala.util.{Failure, Success, Try}
 
 class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
+  val testAgent = Agent("testHost", 4, 200000, "QEMU")
+  val testSessionPath = agentSessionPath + "/" + testAgent.host
+  val testPersistentPath = agentPersistedPath + "/" + testAgent.host
 
   override def beforeAll(): Unit = {
     ZkSetup.run()
@@ -32,20 +35,28 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That agent joins cluster") {
-    ZkClient.joinCluster(agentHost, agentUser)
-    assert(ZkClient.pathExists(agentUserPath))
+    ZkClient.joinCluster(testAgent)
+    assert(ZkClient.pathExists(testSessionPath))
   }
 
-  test("That we can fetch agent information") {
-    val agent = ZkClient.getAgentInformation(agentUserPath)
-    assert(agent.host == agentHost)
+  test("That we can register agent") {
+    ZkClient.registerAgent(testAgent)
+    assert(ZkClient.pathExists(testPersistentPath))
+  }
+
+  test("That we can fetch persisted agent information") {
+    val agent = ZkClient.getAgentInformation(testPersistentPath)
+    assert(agent.host == testAgent.host)
+    assert(agent.cpus == testAgent.cpus)
+    assert(agent.totalMem == testAgent.totalMem)
+    assert(agent.virtualType == testAgent.virtualType)
   }
 
   test("That we are using an empheral node") {
-    val stat = Option(zk.checkExists().forPath(agentUserPath))
+    val stat = Option(zk.checkExists().forPath(testSessionPath))
 
     stat match {
-      case None => fail("Could not get stat for " + agentUserPath)
+      case None => fail("Could not get stat for " + testAgent.host)
       case Some(s) => {
         Option(s.getEphemeralOwner) match {
           case None => fail("We don't have a session, fail")
@@ -66,10 +77,5 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   test("That we can fetch a list of active agents") {
     val agents = ZkClient.getAgentNames()
     assert(!agents.isEmpty)
-  }
-
-  test("Parsing znode for agent host") {
-    val agent = ZkClient.getAgentInformation(agentUserPath)
-    assert(agent.host == agentHost)
   }
 }

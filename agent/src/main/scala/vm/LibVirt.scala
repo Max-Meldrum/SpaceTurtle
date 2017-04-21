@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package vm
+package agent.vm
 
 import org.libvirt.{Connect, ConnectAuthDefault}
 import zookeeper.Agent
-
 import scala.util.Try
 
 object LibVirt {
@@ -34,11 +33,13 @@ object LibVirt {
     }
   }
 
+  /** Collect agent info
+    *
+    * @param conn libvirt Connect
+    * @return Agent case class
+    */
   def getAgentInfo(conn: Connect): Agent = {
     val info = conn.nodeInfo()
-    println("CPUS: "+ info.cpus)
-    println("node mem: " + info.memory)
-    println(conn.getType)
     Agent(conn.getHostName, info.cpus, info.memory, conn.getType)
   }
 

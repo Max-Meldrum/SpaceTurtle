@@ -25,17 +25,34 @@ object ZkSetup extends ZkPaths {
     * @param zk ZooKeeper client
     */
   def run()(implicit zk: ZooKeeperClient): Unit = {
-    ZkClient.pathExists(agentPath) match {
+    create(agentsPath)
+    create(agentPersistedPath)
+    create(agentSessionPath)
+  }
+
+  /** Clean znodes
+    *
+    * @param zk ZooKeeper client
+    */
+  def clean()(implicit zk: ZooKeeperClient): Unit = {
+    delete(agentsPath)
+    delete(agentPersistedPath)
+    delete(agentSessionPath)
+  }
+
+  private def create(path: String)(implicit zk: ZooKeeperClient): Unit = {
+    ZkClient.pathExists(path) match {
       case true =>
-      case false => ZkClient.createPath(agentPath)
+      case false => ZkClient.createPath(path)()
     }
   }
 
-  def clean()(implicit zk: ZooKeeperClient): Unit = {
-    ZkClient.pathExists(agentPath) match {
-      case true => ZkClient.deleteZNode(agentPath)
+  private def delete(path: String)(implicit zk: ZooKeeperClient): Unit = {
+    ZkClient.pathExists(path) match {
+      case true => ZkClient.deleteZNode(path)
       case false =>
     }
   }
+
 
 }

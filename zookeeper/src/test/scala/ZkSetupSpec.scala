@@ -22,21 +22,19 @@ class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   override def beforeAll(): Unit = {
-    // Clean before as we assume zookeeper is empty in first test
-    ZkSetup.clean()
+    ZkSetup.run()
   }
 
   override def afterAll(): Unit = {
     ZkSetup.clean()
   }
 
-  test("Check that Agents node gets created") {
-    assert(ZkClient.pathExists(agentPath) == false)
+  test("Check that Agent persistent node gets created") {
+    assert(ZkClient.pathExists(agentPersistedPath) == true)
+  }
 
-    val agentNode = zk.create().forPath(agentPath)
-    assert(agentNode == agentPath)
-
-    assert(ZkClient.pathExists(agentPath) == true)
+  test("Check that Agent session node gets created") {
+    assert(ZkClient.pathExists(agentSessionPath) == true)
   }
 }
 

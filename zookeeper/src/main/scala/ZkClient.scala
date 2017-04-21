@@ -25,7 +25,6 @@ import org.apache.zookeeper.data.ACL
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-
 /** ZooKeeper Client
   *
   * Uses application.conf and CuratorFramework to build a
@@ -88,9 +87,9 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param path target path
     * @param zk ZooKeeper client
     */
-  def createPath(path: String)(implicit zk: ZooKeeperClient) : Unit = {
+  def createPath(path: String)(data: String = "")(implicit zk: ZooKeeperClient) : Unit = {
     pathExists(path) match {
-      case false => zk.create().forPath(path)
+      case false => zk.create().forPath(path, data.getBytes)
       case true => logger.info("Path already exists " + path)
     }
   }
@@ -109,16 +108,30 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
 
   /** Joins SpaceTurtle cluster
     *
-    * @param host IP/hostname to agent
-    * @param agentName nick of agent
+    * @param agent Agent case class which holds all information
     * @param zk ZooKeeper client
     */
-  def joinCluster(host: String, agentName: String)(implicit zk: ZooKeeperClient) : Try[Unit] = {
-    val zHost = "Host=" + host + "\n"
-    val path = agentPath + "/" + agentName
-    val input = zHost.getBytes
+  def joinCluster(agent: Agent)(implicit zk: ZooKeeperClient): Try[Unit] = {
+    val path = agentSessionPath + "/" + agent.host
     // EPHEMERAL means the data will get deleted after session is lost
-    Try(zk.create().withMode(CreateMode.EPHEMERAL).forPath(path, input))
+    Try(zk.create().withMode(CreateMode.EPHEMERAL).forPath(path))
+  }
+
+  /** Registers agent if it has not has already
+    *
+    * @param agent Agent case class
+    * @param zk ZooKeeper client
+    */
+  def registerAgent(agent: Agent)(implicit zk: ZooKeeperClient): Unit = {
+    val path = agentPersistedPath + "/" + agent.host
+    if (!pathExists(path)) {
+      val host = "host=" + agent.host+ "\n"
+      val cpus = "cpus=" + agent.cpus + "\n"
+      val totalMem = "totalMem=" + agent.totalMem + "\n"
+      val virtualType = "type=" + agent.virtualType
+      val input = (host + cpus + totalMem + virtualType)
+      createPath(path)(input)
+    }
   }
 
   /** Fetch active agents
@@ -128,10 +141,10 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     */
   def getAgentNames()(implicit zk: ZooKeeperClient): List[AgentAlias] = {
     // Ensure we are getting latest commits
-    zk.sync().forPath(agentPath)
+    zk.sync().forPath(agentSessionPath)
 
     zk.getChildren
-      .forPath(agentPath)
+      .forPath(agentSessionPath)
       .asScala
       .toList
   }
@@ -158,12 +171,27 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
       .map(_.trim)
       .mkString
 
-    val agentHost = parsedZkData.split("\\r?\\n")(0)
-      .split("Host=")
+    // TODO: Refactor
+
+    val host= parsedZkData.split("\\r?\\n")(0)
+      .split("host=")
       .mkString
 
-    // TODO: FIX
-    Agent(agentHost, 2, 2, "qemu")
+    val cpus = parsedZkData.split("\\r?\\n")(1)
+      .split("cpus=")
+      .mkString
+      .toInt
+
+    val totalMem = parsedZkData.split("\\r?\\n")(2)
+      .split("totalMem=")
+      .mkString
+      .toLong
+
+    val virtualType = parsedZkData.split("\\r?\\n")(3)
+      .split("type=")
+      .mkString
+
+    Agent(host, cpus, totalMem, virtualType)
   }
 
 }

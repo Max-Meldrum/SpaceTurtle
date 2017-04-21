@@ -19,7 +19,8 @@ package zookeeper
 class ZkPathsSpec extends BaseSpec with ZkPaths with AgentConfig {
 
   test("That agent paths are correct") {
-    assert(agentPath == "/agents")
-    assert(agentUserPath == "/agents/" + agentUser)
+    assert(agentsPath == "/agents")
+    assert(agentSessionPath == "/agents/session")
+    assert(agentPersistedPath == "/agents/persisted")
   }
 }

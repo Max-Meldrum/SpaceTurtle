@@ -19,7 +19,7 @@ package agent
 import com.typesafe.scalalogging.LazyLogging
 import org.libvirt.Connect
 import vm.LibVirt
-import zookeeper.{AgentConfig, ZkClient}
+import zookeeper.{AgentConfig, ZkClient, ZkSetup}
 
 import scala.util.{Failure, Success}
 
@@ -50,10 +50,15 @@ object Main extends App with LazyLogging with AgentConfig {
   def zookeeperSetup(manager: Connect): Unit = {
     ZkClient.connect() match {
       case true => {
-        ZkClient.joinCluster(agentHost, agentUser) match {
+        val agent = LibVirt.getAgentInfo(manager)
+        ZkSetup.run()
+        ZkClient.joinCluster(agent) match {
           case Success(_) => {
             logger.info("ZooKeeper session is now active")
-            LibVirt.getAgentInfo(manager)
+            ZkClient.registerAgent(agent)
+            while (true) {
+              Thread.sleep(1000)
+            }
           }
           case Failure(e) => logger.error("Error occurred, " + e.toString)
         }

@@ -18,12 +18,21 @@ package http.routes
 
 import akka.http.scaladsl.model.StatusCodes
 import master.HttpSpec
+import org.scalatest.BeforeAndAfterAll
 import zookeeper.ZkClient.AgentAlias
-import zookeeper.{Agent, ZkClient}
+import zookeeper.{Agent, ZkClient, ZkPaths, ZkSetup}
 
 import scala.util.{Failure, Success}
 
-class DomainRouteSpec extends HttpSpec {
+class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
+
+  override def beforeAll(): Unit = {
+    ZkSetup.run()
+  }
+
+  override def afterAll(): Unit = {
+    ZkSetup.clean()
+  }
 
   import master.http.JsonSupport._
 
@@ -42,17 +51,19 @@ class DomainRouteSpec extends HttpSpec {
     }
 
     "get list of active agents" in {
-      ZkClient.createPath("/agents")
-      assert(ZkClient.pathExists("/agents"))
-
-      ZkClient.joinCluster("localhost", "testAgent") match {
+      val testAgent = Agent("testHost", 4, 200000, "QEMU")
+      assert(!ZkClient.pathExists(agentSessionPath + "/" + testAgent.host))
+      ZkClient.joinCluster(testAgent) match {
         case Success(_) => {
           Get("/api/v1/domain/agents/active") ~> route ~> check {
             status shouldEqual StatusCodes.OK
-            responseAs[List[AgentAlias]] shouldEqual List("testAgent")
+            responseAs[List[AgentAlias]] shouldEqual List(testAgent.host)
           }
         }
-        case Failure(_) => fail("Could not join cluster")
+        case Failure(e) => {
+          println(e.toString)
+          fail("Could not join cluster")
+        }
       }
     }
   }
