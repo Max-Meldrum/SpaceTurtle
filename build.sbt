@@ -31,7 +31,7 @@ lazy val agent = (project in file("agent"))
   .settings(agentSettings: _*)
   .settings(
     mainClass in assembly := Some("agent.Main"),
-    assemblyJarName in assembly := "Agent.jar" ,
+    assemblyJarName in assembly := "agent.jar" ,
     libraryDependencies ++= Dependencies.agentDependencies
   )
 
@@ -40,7 +40,7 @@ lazy val cli = (project in file("cli"))
   .settings(commonSettings: _*)
   .settings(
     mainClass in assembly := Some("cli.SpaceTurtleCli"),
-    assemblyJarName in assembly := "SpaceTurtleCli.jar",
+    assemblyJarName in assembly := "cli.jar",
     libraryDependencies ++= Dependencies.cliDependencies,
     connectInput in run := true
   )
@@ -50,7 +50,7 @@ lazy val master = (project in file("master"))
   .settings(masterSettings: _*)
   .settings(
     mainClass in assembly := Some("master.Master"),
-    assemblyJarName in assembly := "Master.jar" ,
+    assemblyJarName in assembly := "master.jar" ,
     libraryDependencies ++= Dependencies.masterDependencies
   )
 
