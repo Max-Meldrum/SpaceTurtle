@@ -24,6 +24,9 @@ object Dependencies {
   val logbackVersion = "1.1.7"
   val typeConfigVersion = "1.3.1"
   val akkaHttpVersion = "10.0.5"
+  val libvirtVersion = "0.5.1"
+  val jnaVersion = "3.5.0"
+
 
 
   val logDependencies : Seq[ModuleID] = Seq(
@@ -44,12 +47,17 @@ object Dependencies {
     "org.apache.curator" % "curator-test" % curatorVersion
   )
 
+  val libvirtDependencies : Seq[ModuleID] = Seq(
+    "org.libvirt" % "libvirt" % libvirtVersion,
+    "net.java.dev.jna" % "jna" % jnaVersion
+  )
+
   // Common libs that are used together
   val common : Seq[ModuleID] =
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] = common
-  val agentDependencies : Seq[ModuleID] = common
+  val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
 
   val masterDependencies : Seq[ModuleID] = common ++ Seq(

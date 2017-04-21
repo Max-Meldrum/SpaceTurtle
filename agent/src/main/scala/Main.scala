@@ -17,39 +17,53 @@
 package agent
 
 import com.typesafe.scalalogging.LazyLogging
+import org.libvirt.Connect
+import vm.LibVirt
 import zookeeper.{AgentConfig, ZkClient}
 
 import scala.util.{Failure, Success}
 
 /** Main Starting Point of Program
   *
-  * Starts the SpaceTurtle server and joins the cluster,
+  * Starts the agent and joins the cluster,
   * by creating a session to ZooKeeper
   */
 object Main extends App with LazyLogging with AgentConfig {
-
   implicit val zk = ZkClient.zkCuratorFrameWork
-  ZkClient.connect()
 
-  // To let it try to connect before checking connection status
-  Thread.sleep(500)
+  getVmManager() match {
+    case Some(manager) => zookeeperSetup(manager)
+    case None => logger.info("Shutting down")
+  }
 
-  val connected = ZkClient.isConnected()
 
-  connected match {
-    case true => {
-      ZkClient.joinCluster(agentHost, agentUser) match {
-        case Success(_) => {
-          logger.info("ZooKeeper session is now active")
-        }
-        case Failure(e) => logger.error("Error occured, " + e.toString)
+  def getVmManager(): Option[Connect] = {
+    LibVirt.init() match {
+      case Success(v) => Some(v)
+      case Failure(e) => {
+        logger.error("Failed to establish connection through libvirt: " + e.toString)
+        None
       }
-
-    }
-    case false => {
-      logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
     }
   }
 
-  zk.close()
+  def zookeeperSetup(manager: Connect): Unit = {
+    ZkClient.connect() match {
+      case true => {
+        ZkClient.joinCluster(agentHost, agentUser) match {
+          case Success(_) => {
+            logger.info("ZooKeeper session is now active")
+            LibVirt.getAgentInfo(manager)
+          }
+          case Failure(e) => logger.error("Error occurred, " + e.toString)
+        }
+      }
+      case false => {
+        logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
+      }
+    }
+    // Close CuratorFramework at end
+    zk.close()
+  }
+
 }

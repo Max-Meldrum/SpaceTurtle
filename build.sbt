@@ -1,35 +1,34 @@
 name := "SpaceTurtle." + "root"
 
-lazy val masterSettings = Seq(
-  version := "0.1",
-  organization := "se.meldrum.spaceturtle",
-  scalaVersion := "2.12.1",
-  fork in run := true,
-  fork in Test := true,
-  cancelable in Global := true,
-    javaOptions in run ++= Seq(
-    "-Dconfig.file=../conf/master.conf",
-    "-Djava.security.auth.login.config=../conf/jaas.conf",
-    "-Djava.security.krb5.conf=../conf/krb5.conf"
-  )
-)
-
 lazy val commonSettings = Seq(
   version := "0.1",
   organization := "se.meldrum.spaceturtle",
   scalaVersion := "2.12.1",
   fork in run := true,
   fork in Test := true,
+  cancelable in Global := true
+)
+
+lazy val zookeeperSettings = javaOptions in run ++= Seq(
+  "-Djava.security.auth.login.config=../conf/jaas.conf",
+  "-Djava.security.krb5.conf=../conf/krb5.conf"
+)
+
+lazy val masterSettings = commonSettings ++ zookeeperSettings ++ Seq(
+    javaOptions in run ++= Seq(
+    "-Dconfig.file=../conf/master.conf"
+  )
+)
+
+lazy val agentSettings = commonSettings ++ zookeeperSettings ++ Seq(
   javaOptions in run ++= Seq(
-    "-Dconfig.file=../conf/agent.conf",
-    "-Djava.security.auth.login.config=../conf/jaas.conf",
-    "-Djava.security.krb5.conf=../conf/krb5.conf"
+    "-Dconfig.file=../conf/agent.conf"
   )
 )
 
 lazy val agent = (project in file("agent"))
   .dependsOn(zookeeper % "test->test;compile->compile")
-  .settings(commonSettings: _*)
+  .settings(agentSettings: _*)
   .settings(
     mainClass in assembly := Some("agent.Main"),
     assemblyJarName in assembly := "Agent.jar" ,

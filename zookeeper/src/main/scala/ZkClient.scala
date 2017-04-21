@@ -53,10 +53,14 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
 
   /** Attempts to connect to the ZooKeeper ensemble
     *
-    * If it fails, it will try using the RetryPolicy,
-    * the attempts are decided by zkMaxReconnections
+    * @return True if connected, otherwise false
     */
-  def connect()(implicit zk: ZooKeeperClient): Unit = zk.start()
+  def connect()(implicit zk: ZooKeeperClient): Boolean = {
+    zk.start()
+    // Short sleep time for letting it try to connect
+    Thread.sleep(500)
+    isConnected()
+  }
 
   /** Checks connection to ZooKeeper
     *
@@ -158,7 +162,8 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
       .split("Host=")
       .mkString
 
-    Agent(agentHost)
+    // TODO: FIX
+    Agent(agentHost, 2, 2, "qemu")
   }
 
 }

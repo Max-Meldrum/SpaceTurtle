@@ -29,14 +29,8 @@ object Master extends App with HttpConfig with LazyLogging {
 
   httpSetup()
 
-  def zkConnect(): Boolean = {
-    ZkClient.connect()
-    Thread.sleep(1000)
-    ZkClient.isConnected()
-  }
-
   def httpSetup(): Unit = {
-    zkConnect() match {
+    ZkClient.connect() match {
       case true => {
         ZkSetup.run()
         implicit val system = ActorSystem("Master")

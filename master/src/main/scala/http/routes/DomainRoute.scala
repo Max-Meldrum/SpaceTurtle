@@ -17,9 +17,10 @@
 package master.http.routes
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.LazyLogging
 import zookeeper.{Agent, ZkClient}
-import zookeeper.ZkClient.ZooKeeperClient
+import zookeeper.ZkClient.{AgentAlias, ZooKeeperClient}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,38 +29,45 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
 
   import master.http.JsonSupport._
 
-  // TODO: Refactor into something more pretty
-  val route =
+  val route: Route =
     pathPrefix("domain") {
-      path("health") {
+      health~
+      agents
+    }
+
+  val agents: Route =
+    pathPrefix("agents") {
+      path("active") {
         get {
-          extractClientIP {ip =>
-            val remoteHost = ip.toOption.map(_.getHostAddress).getOrElse("unknown")
-            logger.info("Client: " + remoteHost + " Checking health")
-            complete(health())
-          }
+          complete(getActiveAgents())
         }
       }~
-      pathPrefix("agents") {
-        path("active") {
-          get {
-            complete(getActiveAgents())
-          }
-        }~
         get {
           complete("all nodes")
+        }
+    }
+
+
+  val health: Route =
+    path("health") {
+      get {
+        extractClientIP {ip =>
+          val remoteHost = ip.toOption.map(_.getHostAddress).getOrElse("unknown")
+          logger.info("Client: " + remoteHost + " Checking health")
+          complete(getHealth())
         }
       }
     }
 
-  private def health(): String = {
+  private def getHealth(): String = {
     ZkClient.isConnected() match {
       case true => "up"
       case false => "down"
     }
   }
 
-  private def getActiveAgents(): Future[List[Agent]] =
-    Future(ZkClient.getAgentNames().map(Agent(_)))
+  private def getActiveAgents(): Future[List[AgentAlias]] =
+    Future(ZkClient.getAgentNames())
 
 }
+

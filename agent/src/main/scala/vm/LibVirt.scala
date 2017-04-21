@@ -14,15 +14,32 @@
  * limitations under the License.
  */
 
-package master.http
+package vm
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.DefaultJsonProtocol
+import org.libvirt.{Connect, ConnectAuthDefault}
 import zookeeper.Agent
 
-/*
- * JsonSupport helps to marshall our case classes into JSON
- */
-object JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-  implicit val agentFormat = jsonFormat4(Agent)
+import scala.util.Try
+
+object LibVirt {
+
+  /** Initialize connection to KVM/QEMU
+    *
+    * @return Scala Try with libvirt Connect
+    */
+  def init(): Try[Connect] = {
+    Try{
+      val auth = new ConnectAuthDefault
+      new Connect("qemu:///system", auth, 0)
+    }
+  }
+
+  def getAgentInfo(conn: Connect): Agent = {
+    val info = conn.nodeInfo()
+    println("CPUS: "+ info.cpus)
+    println("node mem: " + info.memory)
+    println(conn.getType)
+    Agent(conn.getHostName, info.cpus, info.memory, conn.getType)
+  }
+
 }

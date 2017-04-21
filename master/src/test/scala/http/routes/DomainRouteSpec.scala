@@ -18,6 +18,7 @@ package http.routes
 
 import akka.http.scaladsl.model.StatusCodes
 import master.HttpSpec
+import zookeeper.ZkClient.AgentAlias
 import zookeeper.{Agent, ZkClient}
 
 import scala.util.{Failure, Success}
@@ -48,7 +49,7 @@ class DomainRouteSpec extends HttpSpec {
         case Success(_) => {
           Get("/api/v1/domain/agents/active") ~> route ~> check {
             status shouldEqual StatusCodes.OK
-            responseAs[List[Agent]] shouldEqual List(Agent("testAgent"))
+            responseAs[List[AgentAlias]] shouldEqual List("testAgent")
           }
         }
         case Failure(_) => fail("Could not join cluster")

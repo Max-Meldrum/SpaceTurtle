@@ -16,4 +16,4 @@
 
 package zookeeper
 
-case class Agent(host: String)
+case class Agent(host: String, cpus: Int, totalMem: Long, virtualType: String)
