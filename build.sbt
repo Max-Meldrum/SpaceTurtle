@@ -6,7 +6,12 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.1",
   fork in run := true,
   fork in Test := true,
-  cancelable in Global := true
+  cancelable in Global := true,
+  assemblyMergeStrategy in assembly := {
+    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case "reference.conf" => MergeStrategy.concat
+    case x => MergeStrategy.first
+  }
 )
 
 lazy val zookeeperSettings = javaOptions in run ++= Seq(
