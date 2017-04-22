@@ -26,6 +26,7 @@ import scala.util.{Failure, Success, Try}
   *
   * A way of talking/commanding the rest of the cluster
   */
+// $COVERAGE-OFF$Disabling highlighting by default until a workaround for https://issues.scala-lang.org/browse/SI-8596 is found
 object SpaceTurtleCli extends App {
 
   parseCommands(args)
