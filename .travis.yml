@@ -10,6 +10,7 @@ install:
   - sudo apt-get install qemu-system qemu-kvm libvirt-bin virtinst bridge-utils cpu-checker
   - sudo mv $TRAVIS_BUILD_DIR/conf/libvirt.conf /etc/libvirt/libvirt.conf
   - sudo service libvirt-bin restart 
+  - groups
 script:
  - sbt -jvm-opts travis/jvmopts.compile compile
  - sbt -jvm-opts travis/jvmopts.test test
