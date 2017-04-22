@@ -7,7 +7,7 @@ jdk:
 - oraclejdk8
 install:
   - sudo apt-get update -qq
-  - sudo apt-get install qemu-kvm libvirt-bin virtinst bridge-utils cpu-checker
+  - sudo apt-get install build-dep libvirt qemu-kvm libvirt-bin virtinst bridge-utils cpu-checker
 script:
  - sbt -jvm-opts travis/jvmopts.compile compile
  - sbt -jvm-opts travis/jvmopts.test test
