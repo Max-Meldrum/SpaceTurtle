@@ -84,10 +84,13 @@ object SpaceTurtleCli extends App {
     * @param zk ZooKeeper client
     */
   def listAgents()(implicit zk: ZooKeeperClient): Unit = {
+    /*
     ZkClient.isConnected() match {
-      case true => ZkClient.getAgentNames().foreach(println(_))
+      case true => ZkClient.activeAgents().foreach(println(_))
       case false => println("Could not list agents because of connection failure")
     }
+    */
+    println("Code empty")
   }
 
 

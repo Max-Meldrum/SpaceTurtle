@@ -39,12 +39,21 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
     pathPrefix("agents") {
       path("active") {
         get {
-          complete(getActiveAgents())
+          complete(ZkClient.activeAgents())
         }
       }~
-        get {
-          complete("all nodes")
+      pathPrefix("persisted") {
+        path("names") {
+          get {
+            complete(ZkClient.persistedAgents())
+          }
+        }~
+        path("full") {
+          get {
+            complete(persistedAgentsFull)
+          }
         }
+      }
     }
 
 
@@ -66,8 +75,10 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
     }
   }
 
-  private def getActiveAgents(): Future[List[AgentAlias]] =
-    Future(ZkClient.getAgentNames())
-
+  private def persistedAgentsFull: Future[List[Agent]] = {
+    ZkClient.persistedAgents().flatMap { names =>
+      Future.sequence(names.map(n => ZkClient.getAgent(n)))
+    }
+  }
 }
 

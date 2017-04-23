@@ -30,11 +30,11 @@ class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("Check that Agent persistent node gets created") {
-    assert(ZkClient.pathExists(agentPersistedPath) == true)
+    assert(ZkClient.nodeExists(agentPersistedPath) == true)
   }
 
   test("Check that Agent session node gets created") {
-    assert(ZkClient.pathExists(agentSessionPath) == true)
+    assert(ZkClient.nodeExists(agentSessionPath) == true)
   }
 }
 

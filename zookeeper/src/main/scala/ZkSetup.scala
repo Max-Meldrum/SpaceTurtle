@@ -41,15 +41,15 @@ object ZkSetup extends ZkPaths {
   }
 
   private def create(path: String)(implicit zk: ZooKeeperClient): Unit = {
-    ZkClient.pathExists(path) match {
+    ZkClient.nodeExists(path) match {
       case true =>
-      case false => ZkClient.createPath(path)()
+      case false => ZkClient.createNode(path)
     }
   }
 
   private def delete(path: String)(implicit zk: ZooKeeperClient): Unit = {
-    ZkClient.pathExists(path) match {
-      case true => ZkClient.deleteZNode(path)
+    ZkClient.nodeExists(path) match {
+      case true => ZkClient.deleteNode(path)
       case false =>
     }
   }

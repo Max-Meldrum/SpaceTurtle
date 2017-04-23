@@ -23,6 +23,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.zookeeper.{CreateMode, ZooDefs}
 import org.apache.zookeeper.data.ACL
 import scala.collection.JavaConverters._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 /** ZooKeeper Client
@@ -69,27 +70,22 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   def isConnected()(implicit zk: ZooKeeperClient): Boolean =
     zk.getZookeeperClient.isConnected
 
-  /** Check if Znode path exists
+  /** Check if znode exists
     *
     * @param path znode path
     * @return True if it exist, otherwise false
     */
-  def pathExists(path: String)(implicit zk: ZooKeeperClient): Boolean = {
-    val stat = Option(zk.checkExists().forPath(path))
-    stat match {
-      case None => false
-      case Some(_) => true
-    }
-  }
+  def nodeExists(path: String)(implicit zk: ZooKeeperClient): Boolean =
+    Option(zk.checkExists().forPath(path)).isDefined
 
-  /** Creates znode if not exists
+  /** Creates ZooKeeper znode
     *
     * @param path target path
     * @param zk ZooKeeper client
     */
-  def createPath(path: String)(data: String = "")(implicit zk: ZooKeeperClient) : Unit = {
-    pathExists(path) match {
-      case false => zk.create().forPath(path, data.getBytes)
+  def createNode(path: String, data: Option[String] = None)(implicit zk: ZooKeeperClient) : Unit = {
+    nodeExists(path) match {
+      case false => zk.create().forPath(path, data.getOrElse("").getBytes)
       case true => logger.info("Path already exists " + path)
     }
   }
@@ -99,8 +95,8 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param path target path
     * @param zk ZooKeeper client
     */
-  def deleteZNode(path: String)(implicit zk: ZooKeeperClient): Unit = {
-    pathExists(path) match {
+  def deleteNode(path: String)(implicit zk: ZooKeeperClient): Unit = {
+    nodeExists(path) match {
       case true => zk.delete().deletingChildrenIfNeeded().forPath(path)
       case false => logger.info("Tried deleting a non existing path: " + path)
     }
@@ -124,13 +120,13 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     */
   def registerAgent(agent: Agent)(implicit zk: ZooKeeperClient): Unit = {
     val path = agentPersistedPath + "/" + agent.host
-    if (!pathExists(path)) {
+    if (!nodeExists(path)) {
       val host = "host=" + agent.host+ "\n"
       val cpus = "cpus=" + agent.cpus + "\n"
       val totalMem = "totalMem=" + agent.totalMem + "\n"
       val virtualType = "type=" + agent.virtualType
-      val input = (host + cpus + totalMem + virtualType)
-      createPath(path)(input)
+      val data = (host + cpus + totalMem + virtualType)
+      createNode(path, Some(data))
     }
   }
 
@@ -139,26 +135,43 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param zk ZooKeeper client
     * @return list of agents
     */
-  def getAgentNames()(implicit zk: ZooKeeperClient): List[AgentAlias] = {
+  def activeAgents()(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[List[AgentAlias]] =
+    Future(fetchNodes(agentSessionPath))
+
+  /** Fetch persisted agents
+    *
+    * @param zk ZooKeeper client
+    * @return list of agents
+    */
+  def persistedAgents()(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[List[AgentAlias]] =
+    Future(fetchNodes(agentPersistedPath))
+
+  /** Fetch znodes under certain path
+    *
+    * @param path znode path /SpaceTurtle/..
+    * @param zk ZooKeeper client
+    * @return List of found znodes
+    */
+  private def fetchNodes(path: String)(implicit zk: ZooKeeperClient): List[String] = {
     // Ensure we are getting latest commits
-    zk.sync().forPath(agentSessionPath)
+    zk.sync().forPath(path)
 
     zk.getChildren
-      .forPath(agentSessionPath)
+      .forPath(path)
       .asScala
       .toList
   }
 
   /** Fetch information for specified agent
     *
-    * @param path target agent
+    * @param znode target agent
     * @param zk ZooKeeper client
-    * @return Agent case class with information about the target
+    * @return Future with Agent case class
     */
-  def getAgentInformation(path: String)(implicit zk: ZooKeeperClient): Agent = {
-    val byteData= zk.getData().forPath(path)
+  def getAgent(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Agent] = Future {
+    val byteData= zk.getData().forPath(agentPersistedPath + "/" + znode)
     val zkData = new String(byteData)
-    parseAgentNode(zkData)
+    parseAgent(zkData)
   }
 
   /** Parse znode Data
@@ -166,7 +179,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param zkData Data that has been fetched from a client.getData().forPath()
     * @return Agent case class that holds information about the agent
     */
-  def parseAgentNode(zkData: String): Agent = {
+  private def parseAgent(zkData: String): Agent = {
     val parsedZkData = zkData.split(" \\r?\\n")
       .map(_.trim)
       .mkString
@@ -193,6 +206,5 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
 
     Agent(host, cpus, totalMem, virtualType)
   }
-
 }
 

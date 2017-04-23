@@ -17,8 +17,12 @@
 package zookeeper
 
 import org.scalatest.BeforeAndAfterAll
+import zookeeper.ZkClient.AgentAlias
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
@@ -36,16 +40,16 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
 
   test("That agent joins cluster") {
     ZkClient.joinCluster(testAgent)
-    assert(ZkClient.pathExists(testSessionPath))
+    assert(ZkClient.nodeExists(testSessionPath))
   }
 
   test("That we can register agent") {
     ZkClient.registerAgent(testAgent)
-    assert(ZkClient.pathExists(testPersistentPath))
+    assert(ZkClient.nodeExists(testPersistentPath))
   }
 
   test("That we can fetch persisted agent information") {
-    val agent = ZkClient.getAgentInformation(testPersistentPath)
+    val agent = Await.result(ZkClient.getAgent(testAgent.host), 2 seconds)
     assert(agent.host == testAgent.host)
     assert(agent.cpus == testAgent.cpus)
     assert(agent.totalMem == testAgent.totalMem)
@@ -75,7 +79,12 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That we can fetch a list of active agents") {
-    val agents = ZkClient.getAgentNames()
+    val agents = Await.result(ZkClient.activeAgents(), 2 seconds)
+    assert(!agents.isEmpty)
+  }
+
+  test("That we can fetch a list of persisted agents") {
+    val agents = Await.result(ZkClient.persistedAgents(), 2 seconds)
     assert(!agents.isEmpty)
   }
 }

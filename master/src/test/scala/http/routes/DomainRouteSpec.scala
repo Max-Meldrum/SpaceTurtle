@@ -21,10 +21,10 @@ import master.HttpSpec
 import org.scalatest.BeforeAndAfterAll
 import zookeeper.ZkClient.AgentAlias
 import zookeeper.{Agent, ZkClient, ZkPaths, ZkSetup}
-
 import scala.util.{Failure, Success}
 
 class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
+  val testAgent = Agent("testHost", 4, 200000, "QEMU")
 
   override def beforeAll(): Unit = {
     ZkSetup.run()
@@ -51,8 +51,7 @@ class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
     }
 
     "get list of active agents" in {
-      val testAgent = Agent("testHost", 4, 200000, "QEMU")
-      assert(!ZkClient.pathExists(agentSessionPath + "/" + testAgent.host))
+      assert(!ZkClient.nodeExists(agentSessionPath + "/" + testAgent.host))
       ZkClient.joinCluster(testAgent) match {
         case Success(_) => {
           Get("/api/v1/domain/agents/active") ~> route ~> check {
@@ -60,10 +59,22 @@ class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
             responseAs[List[AgentAlias]] shouldEqual List(testAgent.host)
           }
         }
-        case Failure(e) => {
-          println(e.toString)
-          fail("Could not join cluster")
-        }
+        case Failure(e) => fail("Could not join cluster")
+      }
+    }
+
+    "get list of persisted agents" in {
+      ZkClient.registerAgent(testAgent)
+      Get("/api/v1/domain/agents/persisted/names") ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[List[AgentAlias]] shouldEqual List(testAgent.host)
+      }
+    }
+
+    "get agent information" in {
+      Get("/api/v1/domain/agents/persisted/full") ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[List[Agent]] shouldEqual List(testAgent)
       }
     }
   }
