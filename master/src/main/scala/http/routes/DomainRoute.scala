@@ -50,7 +50,7 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
         }~
         path("full") {
           get {
-            complete(persistedAgentsFull)
+            complete(ZkClient.persistedAgentsFull())
           }
         }
       }
@@ -72,12 +72,6 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
     ZkClient.isConnected() match {
       case true => "up"
       case false => "down"
-    }
-  }
-
-  private def persistedAgentsFull: Future[List[Agent]] = {
-    ZkClient.persistedAgents().flatMap { names =>
-      Future.sequence(names.map(n => ZkClient.getAgent(n)))
     }
   }
 }

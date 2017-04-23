@@ -78,13 +78,18 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
     }
   }
 
-  test("That we can fetch a list of active agents") {
+  test("That we can fetch a list of active agent names") {
     val agents = Await.result(ZkClient.activeAgents(), 2 seconds)
     assert(!agents.isEmpty)
   }
 
-  test("That we can fetch a list of persisted agents") {
+  test("That we can fetch a list of persisted agent names") {
     val agents = Await.result(ZkClient.persistedAgents(), 2 seconds)
     assert(!agents.isEmpty)
+  }
+
+  test("That we can fetch list of Agent case classes") {
+    val agents = Await.result(ZkClient.persistedAgentsFull(), 2 seconds)
+    assert(agents.contains(testAgent))
   }
 }

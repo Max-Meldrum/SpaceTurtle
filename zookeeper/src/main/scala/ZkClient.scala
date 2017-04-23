@@ -130,6 +130,16 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     }
   }
 
+  /** Fetch persisted agents, including full information
+    *
+    * @return Future containing List of Agent case classes
+    */
+  def persistedAgentsFull()(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[List[Agent]] = {
+    persistedAgents().flatMap { names =>
+      Future.sequence(names.map(n => getAgent(n)))
+    }
+  }
+
   /** Fetch active agents
     *
     * @param zk ZooKeeper client
