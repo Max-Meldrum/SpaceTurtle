@@ -143,7 +143,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   /** Fetch active agents
     *
     * @param zk ZooKeeper client
-    * @return list of agents
+    * @return Future containing list of agent names
     */
   def activeAgents()(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[List[AgentAlias]] =
     Future(fetchNodes(agentSessionPath))
@@ -151,7 +151,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   /** Fetch persisted agents
     *
     * @param zk ZooKeeper client
-    * @return list of agents
+    * @return Future containing list of persisted agent names
     */
   def persistedAgents()(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[List[AgentAlias]] =
     Future(fetchNodes(agentPersistedPath))
