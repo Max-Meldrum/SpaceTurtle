@@ -44,9 +44,9 @@ object Dependencies {
   )
 
   val curatorDependencies: Seq[ModuleID] = Seq(
-    "org.apache.curator" % "curator-framework" % curatorVersion,
-    "org.apache.curator" % "curator-test" % curatorVersion
-  )
+    "org.apache.curator" % "curator-framework",
+    "org.apache.curator" % "curator-test"
+  ).map(_ % curatorVersion)
 
   val libvirtDependencies: Seq[ModuleID] = Seq(
     "org.libvirt" % "libvirt" % libvirtVersion,
@@ -54,10 +54,11 @@ object Dependencies {
   )
 
   val circeDependencies: Seq[ModuleID] = Seq(
-    "io.circe" %% "circe-core" % circeVersion,
-    "io.circe" %% "circe-generic" % circeVersion,
-    "io.circe" %% "circe-jawn" % circeVersion
-  )
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-jawn",
+    "io.circe" %% "circe-parser"
+  ).map(_ % circeVersion)
 
   val akkaHttpDependencies: Seq[ModuleID] = Seq(
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
@@ -69,7 +70,7 @@ object Dependencies {
   val common : Seq[ModuleID] =
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
-  val zookeeperDependencies: Seq[ModuleID] = common
+  val zookeeperDependencies: Seq[ModuleID] = common ++ circeDependencies
   val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies
   val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies

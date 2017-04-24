@@ -17,6 +17,7 @@
 package zookeeper
 
 import com.typesafe.scalalogging.LazyLogging
+import io.circe.Error
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.framework.api.ACLProvider
 import org.apache.curator.retry.ExponentialBackoffRetry
@@ -25,6 +26,9 @@ import org.apache.zookeeper.data.ACL
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import io.circe.jawn.decode
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 /** ZooKeeper Client
   *
@@ -121,11 +125,9 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   def registerAgent(agent: Agent)(implicit zk: ZooKeeperClient): Unit = {
     val path = agentPersistedPath + "/" + agent.host
     if (!nodeExists(path)) {
-      val host = "host=" + agent.host+ "\n"
-      val cpus = "cpus=" + agent.cpus + "\n"
-      val totalMem = "totalMem=" + agent.totalMem + "\n"
-      val virtualType = "type=" + agent.virtualType
-      val data = (host + cpus + totalMem + virtualType)
+      val data = agent.asJson
+        .noSpaces
+
       createNode(path, Some(data))
     }
   }
@@ -181,40 +183,8 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   def getAgent(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Agent] = Future {
     val byteData= zk.getData().forPath(agentPersistedPath + "/" + znode)
     val zkData = new String(byteData)
-    parseAgent(zkData)
-  }
-
-  /** Parse znode Data
-    *
-    * @param zkData Data that has been fetched from a client.getData().forPath()
-    * @return Agent case class that holds information about the agent
-    */
-  private def parseAgent(zkData: String): Agent = {
-    val parsedZkData = zkData.split(" \\r?\\n")
-      .map(_.trim)
-      .mkString
-
-    // TODO: Refactor
-
-    val host= parsedZkData.split("\\r?\\n")(0)
-      .split("host=")
-      .mkString
-
-    val cpus = parsedZkData.split("\\r?\\n")(1)
-      .split("cpus=")
-      .mkString
-      .toInt
-
-    val totalMem = parsedZkData.split("\\r?\\n")(2)
-      .split("totalMem=")
-      .mkString
-      .toLong
-
-    val virtualType = parsedZkData.split("\\r?\\n")(3)
-      .split("type=")
-      .mkString
-
-    Agent(host, cpus, totalMem, virtualType)
+    val agent: Either[Error, Agent] = decode[Agent](zkData)
+    agent.getOrElse(Agent("JSON parse error", 2, 2, "fail"))
   }
 }
 
