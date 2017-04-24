@@ -34,7 +34,9 @@ class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
     ZkSetup.clean()
   }
 
-  import master.http.JsonSupport._
+  // JSON marshalling/unmarshalling
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
 
   "Domain route " should {
     "not handle GET requests on invalid paths" in {

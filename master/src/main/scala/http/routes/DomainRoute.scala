@@ -19,15 +19,17 @@ package master.http.routes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.LazyLogging
-import zookeeper.{Agent, ZkClient}
-import zookeeper.ZkClient.{AgentAlias, ZooKeeperClient}
+import zookeeper.ZkClient
+import zookeeper.ZkClient.ZooKeeperClient
+import scala.concurrent.ExecutionContext
 
-import scala.concurrent.{ExecutionContext, Future}
 
 class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
   extends LazyLogging {
 
-  import master.http.JsonSupport._
+  // JSON marshalling/unmarshalling
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
 
   val route: Route =
     pathPrefix("domain") {

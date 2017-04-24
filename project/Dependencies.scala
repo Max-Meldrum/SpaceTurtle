@@ -19,37 +19,50 @@ import sbt._
 object Dependencies {
   val scalaTestVersion = "3.0.1"
   val curatorVersion = "3.3.0"
-  val nettyVersion = "4.0.4.Final"
   val scalaLoggingVersion = "3.5.0"
   val logbackVersion = "1.1.7"
   val typeConfigVersion = "1.3.1"
   val akkaHttpVersion = "10.0.5"
+  val akkaHttpCirceVersion = "1.15.0"
+  val circeVersion = "0.7.0"
   val libvirtVersion = "0.5.1"
   val jnaVersion = "3.5.0"
 
 
 
-  val logDependencies : Seq[ModuleID] = Seq(
+  val logDependencies: Seq[ModuleID] = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     "ch.qos.logback" % "logback-classic" % logbackVersion
   )
 
-  val confDependencies : Seq[ModuleID] = Seq(
+  val confDependencies: Seq[ModuleID] = Seq(
     "com.typesafe" % "config" % typeConfigVersion
   )
 
-  val testDependencies : Seq[ModuleID] = Seq(
+  val testDependencies: Seq[ModuleID] = Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
   )
 
-  val curatorDependencies : Seq[ModuleID] = Seq(
+  val curatorDependencies: Seq[ModuleID] = Seq(
     "org.apache.curator" % "curator-framework" % curatorVersion,
     "org.apache.curator" % "curator-test" % curatorVersion
   )
 
-  val libvirtDependencies : Seq[ModuleID] = Seq(
+  val libvirtDependencies: Seq[ModuleID] = Seq(
     "org.libvirt" % "libvirt" % libvirtVersion,
     "net.java.dev.jna" % "jna" % jnaVersion
+  )
+
+  val circeDependencies: Seq[ModuleID] = Seq(
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-jawn" % circeVersion
+  )
+
+  val akkaHttpDependencies: Seq[ModuleID] = Seq(
+    "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
+    "de.heikoseeberger" %% "akka-http-circe" % akkaHttpCirceVersion
   )
 
   // Common libs that are used together
@@ -58,13 +71,8 @@ object Dependencies {
 
   val zookeeperDependencies: Seq[ModuleID] = common
   val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies
+  val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
-
-  val masterDependencies : Seq[ModuleID] = common ++ Seq(
-    "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
-  )
 
 
 
