@@ -45,7 +45,8 @@ object Dependencies {
 
   val curatorDependencies: Seq[ModuleID] = Seq(
     "org.apache.curator" % "curator-framework",
-    "org.apache.curator" % "curator-test"
+    "org.apache.curator" % "curator-test",
+    "org.apache.curator" % "curator-recipes"
   ).map(_ % curatorVersion)
 
   val libvirtDependencies: Seq[ModuleID] = Seq(
@@ -71,7 +72,7 @@ object Dependencies {
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] = common ++ circeDependencies
-  val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies
+  val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies ++ curatorDependencies
   val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
 

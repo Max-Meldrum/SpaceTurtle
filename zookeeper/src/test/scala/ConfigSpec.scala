@@ -19,7 +19,6 @@ package zookeeper
 class ConfigSpec extends BaseSpec with Config {
 
   test("Config exists") {
-    assert(!config.getConfig("agent").isEmpty)
     assert(!config.getConfig("zookeeper").isEmpty)
   }
 }

@@ -16,7 +16,7 @@
 
 package zookeeper
 
-class ZkPathsSpec extends BaseSpec with ZkPaths with AgentConfig {
+class ZkPathsSpec extends BaseSpec with ZkPaths {
 
   test("That agent paths are correct") {
     assert(agentsPath == "/agents")

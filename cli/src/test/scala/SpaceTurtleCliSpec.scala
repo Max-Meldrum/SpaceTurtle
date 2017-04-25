@@ -16,7 +16,7 @@
 
 package cli
 
-import agent.BaseSpec
+import zookeeper.BaseSpec
 
 class SpaceTurtleCliSpec extends BaseSpec {
 

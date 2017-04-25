@@ -19,7 +19,7 @@ package zookeeper
 /**
   * ZooKeeper paths that SpaceTurtle uses
   */
-trait ZkPaths extends AgentConfig {
+trait ZkPaths {
   val agentsPath = "/agents"
   val agentSessionPath = "/agents/session"
   val agentPersistedPath = "/agents/persisted"

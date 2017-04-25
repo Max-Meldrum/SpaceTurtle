@@ -16,8 +16,7 @@
 
 package agent.vm
 
-import agent.BaseSpec
-
+import zookeeper.BaseSpec
 import scala.util.{Failure, Success}
 
 class LibVirtSpec extends BaseSpec {

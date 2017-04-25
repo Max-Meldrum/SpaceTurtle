@@ -19,7 +19,7 @@ package agent
 import com.typesafe.scalalogging.LazyLogging
 import org.libvirt.Connect
 import vm.LibVirt
-import zookeeper.{AgentConfig, ZkClient, ZkSetup}
+import zookeeper.{ZkClient, ZkSetup}
 import scala.util.{Failure, Success}
 
 /** Main Starting Point of Program
@@ -27,7 +27,7 @@ import scala.util.{Failure, Success}
   * Starts the agent and joins the cluster,
   * by creating a session to ZooKeeper
   */
-object Main extends App with LazyLogging with AgentConfig {
+object Main extends App with LazyLogging {
   implicit val zk = ZkClient.zkCuratorFrameWork
 
 
