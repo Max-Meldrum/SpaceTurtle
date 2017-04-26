@@ -30,13 +30,8 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   val testSessionPath = agentSessionPath + "/" + testAgent.host
   val testPersistentPath = agentPersistedPath + "/" + testAgent.host
 
-  override def beforeAll(): Unit = {
-    ZkSetup.run()
-  }
-
-  override def afterAll(): Unit = {
-    ZkSetup.clean()
-  }
+  override def beforeAll(): Unit = ZkSetup.run()
+  override def afterAll(): Unit = ZkSetup.clean()
 
   test("That agent joins cluster") {
     ZkClient.joinCluster(testAgent)

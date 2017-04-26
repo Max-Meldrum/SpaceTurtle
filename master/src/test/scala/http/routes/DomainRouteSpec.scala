@@ -26,13 +26,8 @@ import scala.util.{Failure, Success}
 class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
   val testAgent = Agent("testHost", 4, 200000, "QEMU")
 
-  override def beforeAll(): Unit = {
-    ZkSetup.run()
-  }
-
-  override def afterAll(): Unit = {
-    ZkSetup.clean()
-  }
+  override def beforeAll(): Unit = ZkSetup.run()
+  override def afterAll(): Unit = ZkSetup.clean()
 
   // JSON marshalling/unmarshalling
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._

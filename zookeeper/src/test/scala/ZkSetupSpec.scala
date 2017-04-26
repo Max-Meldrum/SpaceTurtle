@@ -21,13 +21,8 @@ import org.scalatest.BeforeAndAfterAll
 class ZkSetupSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
 
-  override def beforeAll(): Unit = {
-    ZkSetup.run()
-  }
-
-  override def afterAll(): Unit = {
-    ZkSetup.clean()
-  }
+  override def beforeAll(): Unit = ZkSetup.run()
+  override def afterAll(): Unit = ZkSetup.clean()
 
   test("Check that Agent persistent node gets created") {
     assert(ZkClient.nodeExists(agentPersistedPath) == true)
