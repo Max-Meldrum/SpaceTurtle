@@ -89,7 +89,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     */
   def createNode(path: String, data: Option[String] = None)(implicit zk: ZooKeeperClient) : Unit = {
     nodeExists(path) match {
-      case false => zk.create().forPath(path, data.getOrElse("").getBytes)
+      case false => zk.create().creatingParentsIfNeeded().forPath(path, data.getOrElse("").getBytes)
       case true => logger.info("Path already exists " + path)
     }
   }
@@ -105,6 +105,15 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
       case false => logger.info("Tried deleting a non existing path: " + path)
     }
   }
+
+  /** Update znode
+    *
+    * @param path target path for znode
+    * @param data data to set
+    * @param zk ZooKeeper client
+    */
+  def updateNode(path: String, data: Option[String] = None)(implicit zk: ZooKeeperClient): Unit =
+    zk.setData().forPath(path, data.getOrElse("").getBytes)
 
   /** Joins SpaceTurtle cluster
     *
@@ -178,6 +187,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     *
     * @param znode target agent
     * @param zk ZooKeeper client
+    * @param ec ExecutionContext for Future
     * @return Future with Agent case class
     */
   def getAgent(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Agent] = Future {
@@ -185,6 +195,20 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     val zkData = new String(byteData)
     val agent: Either[Error, Agent] = decode[Agent](zkData)
     agent.getOrElse(Agent("JSON parse error", 2, 2, "fail"))
+  }
+
+  /** Fetch information for specified domain
+    *
+    * @param znode target domain
+    * @param zk ZooKeeper Client
+    * @param ec ExecutionContext for Future
+    * @return Future with Domain case class
+    */
+  def getDomain(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Domain] = Future {
+    val byteData= zk.getData().forPath(znode)
+    val zkData = new String(byteData)
+    val domain: Either[Error, Domain] = decode[Domain](zkData)
+    domain.getOrElse(Domain("JSON parse error", "", "", "", ""))
   }
 }
 

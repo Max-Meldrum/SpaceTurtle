@@ -17,8 +17,6 @@
 package zookeeper
 
 import org.scalatest.BeforeAndAfterAll
-import zookeeper.ZkClient.AgentAlias
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}

@@ -30,7 +30,6 @@ import scala.util.{Failure, Success}
 object Main extends App with LazyLogging {
   implicit val zk = ZkClient.zkCuratorFrameWork
 
-
   getVmManager().map(zookeeperSetup(_))
 
   def getVmManager(): Option[Connect] = {

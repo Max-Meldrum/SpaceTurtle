@@ -18,28 +18,39 @@ package agent
 
 import agent.vm.LibVirt
 import org.scalatest.BeforeAndAfterAll
-import zookeeper.{BaseSpec, ZkClient, ZkSetup, ZkTestClient}
+import zookeeper._
+import io.circe.generic.auto._
+import io.circe.syntax._
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class AgentHandlerSpec extends BaseSpec with BeforeAndAfterAll {
+class InfrastructureSpec extends BaseSpec with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   override def beforeAll(): Unit = ZkSetup.run()
   override def afterAll(): Unit = ZkSetup.clean()
 
-  test("Path cache listener responds correctly to znode add") {
+  //TODO: Refactor
+  test("Path cache listener responds to add domain") {
     val connect = LibVirt.init().getOrElse(fail())
-    val handler = new AgentHandler(connect)
+    val handler = new Infrastructure(connect)
     val agent = LibVirt.getAgentInfo(connect)
     ZkClient.registerAgent(agent)
     // Check that the cache has no data
-    assert(handler.getCache().getCurrentData().size == 0)
-    handler.createAgentCache()
-    val path = handler.agentPersistedPath + "/" + connect.getHostName + "/" + "znode"
+    assert(handler.getDomainCache().getCurrentData().size == 0)
+    handler.createCache()
+    val path = handler.agentPersistedPath + "/" +
+      connect.getHostName + "/infrastructure/domain/test"
+    val domain = Domain("test", "Test domain", "Domain for unit test", "kvm", "new")
 
-    ZkClient.createNode(path, Some("test"))
-    Thread.sleep(500)
+    ZkClient.createNode(path, Some(domain.asJson.noSpaces))
+    Thread.sleep(2000)
     // After creating something on the path we registered, we should have new size
-    assert(handler.getCache().getCurrentData().size == 1)
+    assert(handler.getDomainCache().getCurrentData().size == 1)
+
+    val updatedDomain = Await.result(ZkClient.getDomain(path), 2 seconds)
+    assert(updatedDomain.status == "processing")
   }
 
 }
