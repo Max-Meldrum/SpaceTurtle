@@ -32,7 +32,7 @@ Run the tests with enabled coverage
 $ sbt clean coverage test
 ```
 
-To generate the coverage reports run
+Generate coverage reports
 ```
 $ sbt coverageReport
 $ sbt coverageAggregate # To get summary of all projects
@@ -43,6 +43,7 @@ $ sbt coverageAggregate # To get summary of all projects
 
 - [x] Join cluster through ZooKeeper
 - [x] Set up auth to ZooKeeper
+- [ ] Allow agents to create domains through libvirt
 
 
 
