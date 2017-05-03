@@ -23,12 +23,10 @@ import zookeeper.ZkTestClient
 
 trait BaseSpec extends FunSuite
 
-trait HttpSpec extends WordSpec with Matchers with ScalatestRouteTest with BeforeAndAfterAll {
+trait HttpSpec extends WordSpec with Matchers with ScalatestRouteTest {
   implicit val zkTestClient = ZkTestClient.zkCuratorFrameWork
   val restService = new RestService()
   val route = restService.route
-
-  override def afterAll(): Unit = zkTestClient.close()
 }
 
 
