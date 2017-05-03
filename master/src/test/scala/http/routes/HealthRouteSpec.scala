@@ -16,22 +16,19 @@
 
 package http.routes
 
+import akka.http.scaladsl.model.StatusCodes
 import master.HttpSpec
-import org.scalatest.BeforeAndAfterAll
-import zookeeper.{Agent, ZkPaths, ZkSetup}
 
-class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
-  val testAgent = Agent("testHost", 4, 200000, "QEMU")
+class HealthRouteSpec extends HttpSpec {
 
-  override def beforeAll(): Unit = ZkSetup.run()
-  override def afterAll(): Unit = ZkSetup.clean()
-
-  "Domain route " should {
-    "not handle GET requests on invalid paths" in {
-      Get("/api/v1/domain/invalid") ~> route ~> check {
-        handled shouldBe false
+  "Health route" should {
+    "check health of zookeeper" in {
+      Get("/api/v1/health/zookeeper") ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[String] shouldEqual "up"
       }
     }
   }
 
 }
+

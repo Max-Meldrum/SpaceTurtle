@@ -24,30 +24,34 @@ import zookeeper.ZkClient.ZooKeeperClient
 import scala.concurrent.ExecutionContext
 
 
-class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
+class AgentRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
   extends LazyLogging {
 
+  // JSON marshalling/unmarshalling
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
+
   val route: Route =
-    pathPrefix("domain") {
-      health
+    pathPrefix("agents") {
+      agents
     }
 
-  private[this] val health: Route =
-    path("health") {
-      get {
-        extractClientIP {ip =>
-          val remoteHost = ip.toOption.map(_.getHostAddress).getOrElse("unknown")
-          logger.info("Client: " + remoteHost + " Checking health")
-          complete(getHealth())
+  val agents: Route =
+      path("active") {
+        get {
+          complete(ZkClient.activeAgents())
+        }
+      }~
+      pathPrefix("persisted") {
+        path("names") {
+          get {
+            complete(ZkClient.persistedAgents())
+          }
+        }~
+        path("full") {
+          get {
+            complete(ZkClient.persistedAgentsFull())
+          }
         }
       }
-    }
-
-  private def getHealth(): String = {
-    ZkClient.isConnected() match {
-      case true => "up"
-      case false => "down"
-    }
-  }
 }
-

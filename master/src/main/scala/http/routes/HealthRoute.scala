@@ -24,20 +24,20 @@ import zookeeper.ZkClient.ZooKeeperClient
 import scala.concurrent.ExecutionContext
 
 
-class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
+class HealthRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
   extends LazyLogging {
 
   val route: Route =
-    pathPrefix("domain") {
-      health
+    pathPrefix("health") {
+      zookeeper
     }
 
-  private[this] val health: Route =
-    path("health") {
+  val zookeeper: Route =
+    path("zookeeper") {
       get {
-        extractClientIP {ip =>
+        extractClientIP { ip =>
           val remoteHost = ip.toOption.map(_.getHostAddress).getOrElse("unknown")
-          logger.info("Client: " + remoteHost + " Checking health")
+          logger.info("Client: " + remoteHost + " Checking health of zookeeper")
           complete(getHealth())
         }
       }
@@ -50,4 +50,3 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
     }
   }
 }
-

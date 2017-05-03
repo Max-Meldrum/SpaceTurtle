@@ -73,14 +73,9 @@ class Infrastructure(connect: Connect)(implicit zk: ZooKeeperClient)
     */
   private def newDomain(event: PathChildrenCacheEvent): Unit = {
     val path = event.getData.getPath
-    if (path.contains("domain")) {
-      ZkClient.getDomain(path).onComplete({
-        case Success(d) => {
-          val newDomain = d.copy(status = "processing")
-          ZkClient.updateNode(path, Some(newDomain.asJson.noSpaces))
-        }
-        case Failure(e) => logger.error(e.toString)
-      })
-    }
+    ZkClient.getDomain(path).onComplete({
+      case Success(d) => ZkClient.updateNode(path, Some(d.copy(status = "processing").asJson.noSpaces))
+      case Failure(e) => logger.error(e.toString)
+    })
   }
 }
