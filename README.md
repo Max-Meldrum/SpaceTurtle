@@ -45,6 +45,9 @@ $ sbt coverageAggregate # To get summary of all projects
 - [x] Set up auth to ZooKeeper
 - [ ] Allow agents to create domains through libvirt
 
+# License
+SpaceTurtle is Open Source and available under the Apache 2 License.
+
 
 
 
