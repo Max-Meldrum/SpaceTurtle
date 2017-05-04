@@ -19,35 +19,32 @@ package master.http.routes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.LazyLogging
-import zookeeper.ZkClient
+import zookeeper.{Domain, ZkClient}
 import zookeeper.ZkClient.ZooKeeperClient
-import scala.concurrent.ExecutionContext
+
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
   extends LazyLogging {
 
+  // JSON marshalling/unmarshalling
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
+
   val route: Route =
     pathPrefix("domain") {
-      health
-    }
-
-  private[this] val health: Route =
-    path("health") {
-      get {
-        extractClientIP {ip =>
-          val remoteHost = ip.toOption.map(_.getHostAddress).getOrElse("unknown")
-          logger.info("Client: " + remoteHost + " Checking health")
-          complete(getHealth())
+      path("create") {
+        post {
+          entity(as[Domain]) { domain =>
+            complete(create(domain))
+          }
         }
       }
     }
 
-  private def getHealth(): String = {
-    ZkClient.isConnected() match {
-      case true => "up"
-      case false => "down"
-    }
+  private def create(domain: Domain): Future[String] = {
+    Future("hej")
   }
 }
 

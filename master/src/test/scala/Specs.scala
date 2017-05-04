@@ -16,9 +16,11 @@
 
 package master
 
+import akka.http.scaladsl.model.{HttpEntity, HttpMethods, HttpRequest, MediaTypes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import akka.util.ByteString
 import http.RestService
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers, WordSpec}
+import org.scalatest.{FunSuite, Matchers, WordSpec}
 import zookeeper.ZkTestClient
 
 trait BaseSpec extends FunSuite
@@ -27,6 +29,12 @@ trait HttpSpec extends WordSpec with Matchers with ScalatestRouteTest {
   implicit val zkTestClient = ZkTestClient.zkCuratorFrameWork
   val restService = new RestService()
   val route = restService.route
+
+  def postRequest(path: String, json: String): HttpRequest =
+    HttpRequest(HttpMethods.POST,
+      uri = path,
+      entity = HttpEntity(MediaTypes.`application/json`, json)
+    )
 }
 
 

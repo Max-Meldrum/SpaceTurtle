@@ -23,7 +23,6 @@ import zookeeper.ZkClient
 import zookeeper.ZkClient.ZooKeeperClient
 import scala.concurrent.ExecutionContext
 
-
 class AgentRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
   extends LazyLogging {
 
@@ -36,7 +35,7 @@ class AgentRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeper
       agents
     }
 
-  val agents: Route =
+  private[this] val agents: Route =
       path("active") {
         get {
           complete(ZkClient.activeAgents())

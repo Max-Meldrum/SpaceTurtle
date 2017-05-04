@@ -32,7 +32,7 @@ class HealthRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
       zookeeper
     }
 
-  val zookeeper: Route =
+  private[this] val zookeeper: Route =
     path("zookeeper") {
       get {
         extractClientIP { ip =>
