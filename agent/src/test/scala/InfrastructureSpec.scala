@@ -42,7 +42,7 @@ class InfrastructureSpec extends BaseSpec with BeforeAndAfterAll {
     handler.createCache()
     val path = handler.agentPersistedPath + "/" +
       connect.getHostName + "/infrastructure/domain/test"
-    val domain = Domain("test", "Test domain", "Domain for unit test", "kvm", "new")
+    val domain = Domain("test", "Test domain", "Domain for unit test", "kvm", "new", 0, 0)
 
     ZkClient.createNode(path, Some(domain.asJson.noSpaces))
     Thread.sleep(2000)

@@ -21,9 +21,7 @@ import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.LazyLogging
 import zookeeper.{Domain, ZkClient}
 import zookeeper.ZkClient.ZooKeeperClient
-
 import scala.concurrent.{ExecutionContext, Future}
-
 
 class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
   extends LazyLogging {

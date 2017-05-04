@@ -39,7 +39,7 @@ class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
     }
 
     "insert domain" in {
-      val domain = Domain("Debian test", "test machine", "KVM", "test", "test")
+      val domain = Domain("Debian test", "test machine", "KVM", "test", "test", 12000, 2)
       val request = postRequest("/api/v1/domain/create", domain.asJson.noSpaces)
 
       request ~> route ~> check {

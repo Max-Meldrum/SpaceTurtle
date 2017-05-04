@@ -17,9 +17,10 @@
 package zookeeper
 
 case class Agent(host: String, cpus: Int, totalMem: Long, virtualType: String)
-case class Vm(name: String, ram: Int)
 case class Domain(name: String,
                   title: String,
                   description: String,
                   dType: String,
-                  status: String)
+                  status: String,
+                  memory: Int,
+                  vcpus: Int)

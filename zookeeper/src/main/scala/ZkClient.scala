@@ -208,7 +208,34 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     val byteData= zk.getData().forPath(znode)
     val zkData = new String(byteData)
     val domain: Either[Error, Domain] = decode[Domain](zkData)
-    domain.getOrElse(Domain("JSON parse error", "", "", "", ""))
+    domain.getOrElse(Domain("JSON parse error", "", "", "", "", 0, 0))
   }
+
+  /** Create Libvirt Domain on free agent host
+    *
+    * @param d Domain case class
+    * @param zk ZooKeeper client
+    * @param ec ExecutionContext for Foture
+    * @return Future with Domain case class with new status
+    */
+  def createDomain(d: Domain)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Domain] = {
+    activeAgents().flatMap { names =>
+      names.isEmpty match {
+        case true => Future.successful(d.copy(status = "Failed, no agents available"))
+        case false => Future.successful(d)
+      }
+    }
+  }
+
+  /*
+  private def getFreeAgent(names: List[AgentAlias], d: Domain)
+                          (implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Agent] = Future {
+    val persisted: Future[List[Agent]] = persistedAgentsFull()
+
+    persisted.flatMap { agents=>
+      val free = agents.filter(_.)
+    }
+  }
+  */
 }
 
