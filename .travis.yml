@@ -29,4 +29,4 @@ after_success:
   - sudo sbt coveralls
 
 before_script:
-  - chmod +x /usr/local/bin/sbt
+  - sudo chmod +x /usr/local/bin/sbt
