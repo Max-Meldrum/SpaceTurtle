@@ -11,11 +11,11 @@ install:
   - sudo mv $TRAVIS_BUILD_DIR/conf/libvirtd.conf /etc/libvirt/libvirtd.conf
   - sudo service libvirt-bin restart
 script:
- - sbt -jvm-opts travis/jvmopts.compile compile
- - sbt -jvm-opts travis/jvmopts.test test
- - sbt clean coverage test 
- - sbt coverageReport
- - sbt coverageAggregate
+ - sudo sbt -jvm-opts travis/jvmopts.compile compile
+ - sudo sbt -jvm-opts travis/jvmopts.test test
+ - sudo sbt clean coverage test 
+ - sudo sbt coverageReport
+ - sudo sbt coverageAggregate
 
 cache:
   directories:
@@ -26,4 +26,4 @@ cache:
 after_success:
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
-  - sbt coveralls
+  - sudo sbt coveralls
