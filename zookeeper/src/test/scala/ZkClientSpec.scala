@@ -24,7 +24,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
-  val testAgent = Agent("testHost", 4, 200000, "QEMU")
+  val testAgent = Agent("testHost", 4, 200000, "QEMU", 0)
   val testSessionPath = agentSessionPath + "/" + testAgent.host
   val testPersistentPath = agentPersistedPath + "/" + testAgent.host
 

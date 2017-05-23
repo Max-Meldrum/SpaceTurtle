@@ -24,8 +24,6 @@ import zookeeper.{Agent, ZkClient, ZkPaths, ZkSetup}
 import scala.util.{Failure, Success}
 
 class AgentRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
-  val testAgent = Agent("testHost", 4, 200000, "QEMU")
-
   override def beforeAll(): Unit = ZkSetup.run()
   override def afterAll(): Unit = ZkSetup.clean()
 

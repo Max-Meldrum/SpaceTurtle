@@ -40,7 +40,7 @@ object LibVirt {
     */
   def getAgentInfo(conn: Connect): Agent = {
     val info = conn.nodeInfo()
-    Agent(conn.getHostName, info.cpus, info.memory, conn.getType)
+    Agent(conn.getHostName,info.cpus, info.memory, conn.getType, conn.getFreeMemory)
   }
 
 }

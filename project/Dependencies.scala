@@ -22,7 +22,7 @@ object Dependencies {
   val scalaLoggingVersion = "3.5.0"
   val logbackVersion = "1.1.7"
   val typeConfigVersion = "1.3.1"
-  val akkaHttpVersion = "10.0.5"
+  val akkaHttpVersion = "10.0.6"
   val akkaHttpCirceVersion = "1.15.0"
   val circeVersion = "0.7.0"
   val libvirtVersion = "0.5.1"

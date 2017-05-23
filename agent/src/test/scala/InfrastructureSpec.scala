@@ -33,7 +33,7 @@ class InfrastructureSpec extends BaseSpec with BeforeAndAfterAll {
 
   //TODO: Refactor
   test("Path cache listener responds to add domain") {
-    val connect = LibVirt.init().getOrElse(fail())
+    val connect = LibVirt.init().getOrElse(fail("Failed to init Libvirt"))
     val handler = new Infrastructure(connect)
     val agent = LibVirt.getAgentInfo(connect)
     ZkClient.registerAgent(agent)

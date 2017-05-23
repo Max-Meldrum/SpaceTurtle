@@ -16,14 +16,16 @@
 
 package http.routes
 
+import akka.http.scaladsl.model.StatusCodes
 import master.HttpSpec
 import org.scalatest.BeforeAndAfterAll
 import io.circe.syntax._
-import zookeeper.{Agent, Domain, ZkPaths, ZkSetup}
+import zookeeper.ZkClient.AgentAlias
+import zookeeper._
+
+import scala.util.{Failure, Success}
 
 class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
-  val testAgent = Agent("testHost", 4, 200000, "QEMU")
-
   override def beforeAll(): Unit = ZkSetup.run()
   override def afterAll(): Unit = ZkSetup.clean()
 
@@ -38,13 +40,25 @@ class DomainRouteSpec extends HttpSpec with ZkPaths with BeforeAndAfterAll {
       }
     }
 
-    "insert domain" in {
-      val domain = Domain("Debian test", "test machine", "KVM", "test", "test", 12000, 2)
-      val request = postRequest("/api/v1/domain/create", domain.asJson.noSpaces)
+    "create domain" in {
+      val request = postRequest("/api/v1/domain/create", testDomain.asJson.noSpaces)
+
+      // TODO: Refactor
+      ZkClient.joinCluster(testAgent) match {
+        case Success(_) => {
+          Get("/api/v1/agents/active") ~> route ~> check {
+            status shouldEqual StatusCodes.OK
+            responseAs[List[AgentAlias]] shouldEqual List(testAgent.host)
+          }
+        }
+        case Failure(e) => fail("Could not join cluster")
+      }
+
+      ZkClient.registerAgent(testAgent)
 
       request ~> route ~> check {
-        //responseAs[List[Domain]] shouldEqual List(domain)
-        responseAs[String] shouldEqual "hej"
+        val domain = responseAs[Domain]
+        domain.status shouldEqual "In process on " + testAgent.host
       }
     }
   }
