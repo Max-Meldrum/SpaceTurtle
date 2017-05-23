@@ -194,7 +194,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     val byteData= zk.getData().forPath(agentPersistedPath + "/" + znode)
     val zkData = new String(byteData)
     val agent: Either[Error, Agent] = decode[Agent](zkData)
-    agent.getOrElse(Agent("JSON parse error", 2, 2, "fail"))
+    agent.getOrElse(Agent("JSON parse error", 2, 2, "fail", 0))
   }
 
   /** Fetch information for specified domain
@@ -215,27 +215,24 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     *
     * @param d Domain case class
     * @param zk ZooKeeper client
-    * @param ec ExecutionContext for Foture
+    * @param ec ExecutionContext for Future
     * @return Future with Domain case class with new status
     */
   def createDomain(d: Domain)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Domain] = {
     activeAgents().flatMap { names =>
       names.isEmpty match {
         case true => Future.successful(d.copy(status = "Failed, no agents available"))
-        case false => Future.successful(d)
+        case false => {
+          persistedAgentsFull().flatMap { agents =>
+            agents.find(_.freeMem > d.memory) match {
+              case Some(agent) => Future.successful(d.copy(status = "In process on " + agent.host))
+              case None => Future.successful(d.copy(status = "Agents lack resources to create Domain"))
+            }
+          }
+        }
       }
     }
   }
 
-  /*
-  private def getFreeAgent(names: List[AgentAlias], d: Domain)
-                          (implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Agent] = Future {
-    val persisted: Future[List[Agent]] = persistedAgentsFull()
-
-    persisted.flatMap { agents=>
-      val free = agents.filter(_.)
-    }
-  }
-  */
 }
 

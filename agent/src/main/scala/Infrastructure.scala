@@ -23,7 +23,7 @@ import org.libvirt.Connect
 import io.circe.generic.auto._
 import io.circe.syntax._
 import zookeeper.ZkClient.ZooKeeperClient
-import zookeeper.{ZkClient, ZkPaths}
+import zookeeper.{Domain, ZkClient, ZkPaths}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
@@ -50,7 +50,7 @@ class Infrastructure(connect: Connect)(implicit zk: ZooKeeperClient)
     val listener = new PathChildrenCacheListener() {
       override def childEvent(client: ZooKeeperClient, event: PathChildrenCacheEvent): Unit = {
         event.getType match {
-          case Type.CHILD_ADDED => newDomain(event)
+          case Type.CHILD_ADDED => newDomainEvent(event)
           case Type.CHILD_UPDATED => logger.info("znode updated")
           case Type.CHILD_REMOVED => logger.info("znode removed")
           case Type.CONNECTION_LOST => logger.info("agentCache listener lost connection")
@@ -61,7 +61,7 @@ class Infrastructure(connect: Connect)(implicit zk: ZooKeeperClient)
     pathCache.getListenable.addListener(listener)
   }
 
-  /** Fetch cache for things like unit tests
+  /** Fetch Domain cache
     *
     * @return  PathChildrenCache
     */
@@ -71,11 +71,24 @@ class Infrastructure(connect: Connect)(implicit zk: ZooKeeperClient)
     *
     * @param event event that happened
     */
-  private def newDomain(event: PathChildrenCacheEvent): Unit = {
+  private def newDomainEvent(event: PathChildrenCacheEvent): Unit = {
     val path = event.getData.getPath
     ZkClient.getDomain(path).onComplete({
-      case Success(d) => ZkClient.updateNode(path, Some(d.copy(status = "processing").asJson.noSpaces))
+      case Success(d) => {
+        ZkClient.updateNode(path, Some(d.copy(status = "processing").asJson.noSpaces))
+        createDomain(path, d)
+      }
       case Failure(e) => logger.error(e.toString)
     })
+  }
+
+  /** Create a Libvirt Domain
+    *
+    * @param path Path to domain so we can update the znode
+    * @param d Domain case class which holds the specs
+    */
+  private def createDomain(path: String, d: Domain): Unit = {
+    val mem = connect.getFreeMemory
+    // Create VM
   }
 }

@@ -35,14 +35,10 @@ class DomainRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
       path("create") {
         post {
           entity(as[Domain]) { domain =>
-            complete(create(domain))
+            complete(ZkClient.createDomain(domain))
           }
         }
       }
     }
-
-  private def create(domain: Domain): Future[String] = {
-    Future("hej")
-  }
 }
 

@@ -20,7 +20,7 @@ import master.BaseSpec
 
 class HttpConfigSpec extends BaseSpec with HttpConfig {
 
-  test("Http config is loads correctly") {
+  test("Http config loads correctly") {
     assert(port > 0 && port <= 65535)
     assert(!interface.isEmpty)
   }
