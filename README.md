@@ -43,7 +43,11 @@ $ sbt coverageAggregate # To get summary of all projects
 
 - [x] Join cluster through ZooKeeper
 - [x] Set up auth to ZooKeeper
-- [ ] Allow agents to create domains through libvirt
+- [ ] Allow agents to create VMs through libvirt
+- [ ] Create REST client
+- [ ] Fetch basic information from domains (VMs)
+- [ ] Set up monitoring through Kamon and Grafana (Graphite/InfluxDB)
+- [ ] Kubernetes cluster setup
 
 # License
 SpaceTurtle is Open Source and available under the Apache 2 License.
