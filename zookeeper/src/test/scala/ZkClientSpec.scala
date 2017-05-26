@@ -42,7 +42,7 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   }
 
   test("That we can fetch persisted agent information") {
-    val agent = Await.result(ZkClient.getAgent(testAgent.host), 2 seconds)
+    val agent = Await.result(ZkClient.getAgent(testAgent.host).map(_.right.get), 2 seconds)
     assert(agent.host == testAgent.host)
     assert(agent.cpus == testAgent.cpus)
     assert(agent.totalMem == testAgent.totalMem)

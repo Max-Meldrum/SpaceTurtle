@@ -52,6 +52,9 @@ trait ZkClient extends ZooKeeperConfig {
 
 object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   type ZooKeeperClient = CuratorFramework
+  type Err = String
+  type DomainResult = Future[Either[Err, Domain]]
+  type AgentResult = Future[Either[Err, Agent]]
   type AgentAlias = String
 
 
@@ -147,7 +150,7 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     */
   def persistedAgentsFull()(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[List[Agent]] = {
     persistedAgents().flatMap { names =>
-      Future.sequence(names.map(n => getAgent(n)))
+      Future.sequence(names.map(n => getAgent(n).map(_.right.get)))
     }
   }
 
@@ -190,11 +193,14 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param ec ExecutionContext for Future
     * @return Future with Agent case class
     */
-  def getAgent(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Agent] = Future {
+  def getAgent(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): AgentResult = Future {
     val byteData= zk.getData().forPath(agentPersistedPath + "/" + znode)
     val zkData = new String(byteData)
     val agent: Either[Error, Agent] = decode[Agent](zkData)
-    agent.getOrElse(Agent("JSON parse error", 2, 2, "fail", 0))
+    agent match {
+      case Left(err) => Left(err.toString)
+      case Right(agent) => Right(agent)
+    }
   }
 
   /** Fetch information for specified domain
@@ -204,11 +210,14 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param ec ExecutionContext for Future
     * @return Future with Domain case class
     */
-  def getDomain(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Domain] = Future {
+  def getDomain(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): DomainResult = Future {
     val byteData= zk.getData().forPath(znode)
     val zkData = new String(byteData)
     val domain: Either[Error, Domain] = decode[Domain](zkData)
-    domain.getOrElse(Domain("JSON parse error", "", "", "", "", 0, 0))
+    domain match {
+      case Left(err) => Left(err.toString)
+      case Right(dom) => Right(dom)
+    }
   }
 
   /** Create Libvirt Domain on free agent host
