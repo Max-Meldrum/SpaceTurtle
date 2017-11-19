@@ -49,8 +49,11 @@ class InfrastructureSpec extends BaseSpec with BeforeAndAfterAll {
     // After creating something on the path we registered, we should have new size
     assert(handler.getDomainCache().getCurrentData().size == 1)
 
-    val updatedDomain = Await.result(ZkClient.getDomain(path).map(_.right.get), 2 seconds)
-    assert(updatedDomain.status == "processing")
+    val updatedDomain = Await.result(ZkClient.getDomain(path).map(_.right.toOption), 2 seconds)
+    updatedDomain match {
+      case Some(d) => assert(d.status == "processing")
+      case None => fail("Failed fetching domain")
+    }
   }
 
 }

@@ -17,13 +17,13 @@
 import sbt._
 
 object Dependencies {
-  val scalaTestVersion = "3.0.1"
-  val curatorVersion = "3.3.0"
+  val scalaTestVersion = "3.0.4"
+  val curatorVersion = "4.0.0"
   val scalaLoggingVersion = "3.5.0"
-  val logbackVersion = "1.1.7"
+  val logbackVersion = "1.2.3"
   val typeConfigVersion = "1.3.1"
-  val akkaHttpVersion = "10.0.6"
-  val akkaHttpCirceVersion = "1.15.0"
+  val akkaHttpVersion = "10.0.10"
+  val akkaHttpCirceVersion = "1.18.0"
   val circeVersion = "0.7.0"
   val libvirtVersion = "0.5.1"
   val jnaVersion = "3.5.0"
@@ -72,10 +72,7 @@ object Dependencies {
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] = common ++ circeDependencies
-  val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies ++ curatorDependencies
+  val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies
   val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
-
-
-
 }
