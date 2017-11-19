@@ -24,11 +24,7 @@ object Dependencies {
   val typeConfigVersion = "1.3.1"
   val akkaHttpVersion = "10.0.10"
   val akkaHttpCirceVersion = "1.18.0"
-  val circeVersion = "0.7.0"
-  val libvirtVersion = "0.5.1"
-  val jnaVersion = "3.5.0"
-
-
+  val circeVersion = "0.8.0"
 
   val logDependencies: Seq[ModuleID] = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
@@ -49,11 +45,6 @@ object Dependencies {
     "org.apache.curator" % "curator-recipes"
   ).map(_ % curatorVersion)
 
-  val libvirtDependencies: Seq[ModuleID] = Seq(
-    "org.libvirt" % "libvirt" % libvirtVersion,
-    "net.java.dev.jna" % "jna" % jnaVersion
-  )
-
   val circeDependencies: Seq[ModuleID] = Seq(
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
@@ -72,7 +63,7 @@ object Dependencies {
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] = common ++ circeDependencies
-  val agentDependencies : Seq[ModuleID] = common ++ libvirtDependencies
+  val agentDependencies : Seq[ModuleID] = common
   val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
 }

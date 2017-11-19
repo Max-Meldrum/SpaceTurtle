@@ -17,9 +17,8 @@
 package agent
 
 import com.typesafe.scalalogging.LazyLogging
-import org.libvirt.Connect
-import vm.LibVirt
-import zookeeper.{ZkClient, ZkSetup}
+import zookeeper.{Agent, ZkClient, ZkSetup}
+
 import scala.util.{Failure, Success}
 
 /** Main Starting Point of Program
@@ -30,22 +29,10 @@ import scala.util.{Failure, Success}
 object Main extends App with LazyLogging {
   implicit val zk = ZkClient.zkCuratorFrameWork
 
-  getVmManager().map(zookeeperSetup(_))
-
-  def getVmManager(): Option[Connect] = {
-    LibVirt.init() match {
-      case Success(v) => Some(v)
-      case Failure(e) => {
-        logger.error("Failed to establish connection through libvirt: " + e.toString)
-        None
-      }
-    }
-  }
-
-  def zookeeperSetup(manager: Connect): Unit = {
+  def zookeeperSetup(): Unit = {
     ZkClient.connect() match {
       case true => {
-        val agent = LibVirt.getAgentInfo(manager)
+        val agent = Agent("test", 2, 2, "", 2)
         ZkSetup.run()
         ZkClient.joinCluster(agent) match {
           case Success(_) => {
@@ -63,10 +50,8 @@ object Main extends App with LazyLogging {
       }
     }
     // Close CuratorFramework at end
-    if (ZkClient.isConnected()) {
+    if (ZkClient.isConnected())
       zk.close()
-    }
-    manager.close()
   }
 
 }

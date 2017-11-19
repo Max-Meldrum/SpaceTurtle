@@ -16,7 +16,6 @@
 
 package agent
 
-import agent.vm.LibVirt
 import org.scalatest.BeforeAndAfterAll
 import zookeeper._
 import io.circe.generic.auto._
@@ -33,15 +32,14 @@ class InfrastructureSpec extends BaseSpec with BeforeAndAfterAll {
 
   //TODO: Refactor
   test("Path cache listener responds to add domain") {
-    val connect = LibVirt.init().getOrElse(fail("Failed to init Libvirt"))
-    val handler = new Infrastructure(connect)
-    val agent = LibVirt.getAgentInfo(connect)
+    val agent = Agent("test", 2, 2, "", 2)
+    val handler = new Infrastructure()
     ZkClient.registerAgent(agent)
     // Check that the cache has no data
     assert(handler.getDomainCache().getCurrentData().size == 0)
     handler.createCache()
     val path = handler.agentPersistedPath + "/" +
-      connect.getHostName + "/infrastructure/domain/test"
+      "changeme" + "/infrastructure/domain/test"
     val domain = Domain("test", "Test domain", "Domain for unit test", "kvm", "new", 0, 0)
 
     ZkClient.createNode(path, Some(domain.asJson.noSpaces))

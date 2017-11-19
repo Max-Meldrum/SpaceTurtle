@@ -19,7 +19,6 @@ package agent
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
-import org.libvirt.Connect
 import io.circe.generic.auto._
 import io.circe.syntax._
 import zookeeper.ZkClient.ZooKeeperClient
@@ -27,10 +26,10 @@ import zookeeper.{Domain, ZkClient, ZkPaths}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
-class Infrastructure(connect: Connect)(implicit zk: ZooKeeperClient)
+class Infrastructure()(implicit zk: ZooKeeperClient)
   extends ZkPaths with LazyLogging {
 
-  private[this] val path = agentPersistedPath + "/" + connect.getHostName + "/infrastructure"
+  private[this] val path = agentPersistedPath + "/" + "changeme" + "/infrastructure"
   private[this] val domainPath = path  + "/" + "domain"
   private[this] val domain = new PathChildrenCache(zk, domainPath, true)
 
@@ -93,7 +92,5 @@ class Infrastructure(connect: Connect)(implicit zk: ZooKeeperClient)
     * @param d Domain case class which holds the specs
     */
   private def createDomain(path: String, d: Domain): Unit = {
-    val mem = connect.getFreeMemory
-    // Create VM
   }
 }
