@@ -53,7 +53,6 @@ trait ZkClient extends ZooKeeperConfig {
 object ZkClient extends ZkClient with ZkPaths with LazyLogging {
   type ZooKeeperClient = CuratorFramework
   type Err = String
-  type DomainResult = Future[Either[Err, Domain]]
   type AgentResult = Future[Either[Err, Agent]]
   type AgentAlias = String
 
@@ -202,46 +201,5 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
       case Right(agent) => Right(agent)
     }
   }
-
-  /** Fetch information for specified domain
-    *
-    * @param znode target domain
-    * @param zk ZooKeeper Client
-    * @param ec ExecutionContext for Future
-    * @return Future with Domain case class
-    */
-  def getDomain(znode: String)(implicit zk: ZooKeeperClient, ec: ExecutionContext): DomainResult = Future {
-    val byteData= zk.getData().forPath(znode)
-    val zkData = new String(byteData)
-    val domain: Either[Error, Domain] = decode[Domain](zkData)
-    domain match {
-      case Left(err) => Left(err.toString)
-      case Right(dom) => Right(dom)
-    }
-  }
-
-  /** Create Libvirt Domain on free agent host
-    *
-    * @param d Domain case class
-    * @param zk ZooKeeper client
-    * @param ec ExecutionContext for Future
-    * @return Future with Domain case class with new status
-    */
-  def createDomain(d: Domain)(implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Domain] = {
-    activeAgents().flatMap { names =>
-      names.isEmpty match {
-        case true => Future.successful(d.copy(status = "Failed, no agents available"))
-        case false => {
-          persistedAgentsFull().flatMap { agents =>
-            agents.find(_.freeMem > d.memory) match {
-              case Some(agent) => Future.successful(d.copy(status = "In process on " + agent.host))
-              case None => Future.successful(d.copy(status = "Agents lack resources to create Domain"))
-            }
-          }
-        }
-      }
-    }
-  }
-
 }
 

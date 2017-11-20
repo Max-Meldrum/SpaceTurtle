@@ -17,19 +17,17 @@
 package master.http
 
 import akka.http.scaladsl.server.Directives._
-import master.http.routes.{AgentRoute, DomainRoute, HealthRoute}
+import master.http.routes.{AgentRoute, HealthRoute}
 import zookeeper.ZkClient.ZooKeeperClient
 import scala.concurrent.ExecutionContext
 
 class RestService()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient) {
-  private[this] val domainRoute = new DomainRoute()
   private[this] val agentRoute = new AgentRoute()
   private[this] val healthRoute = new HealthRoute()
 
   val route =
     pathPrefix("api") {
       pathPrefix("v1") {
-        domainRoute.route~
         agentRoute.route~
         healthRoute.route
       }

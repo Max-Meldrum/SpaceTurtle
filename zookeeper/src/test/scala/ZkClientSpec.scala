@@ -24,7 +24,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
-  val testAgent = Agent("testHost", 4, 200000, "QEMU", 0)
+  val testAgent = Agent("testHost")
   val testSessionPath = agentSessionPath + "/" + testAgent.host
   val testPersistentPath = agentPersistedPath + "/" + testAgent.host
 
@@ -46,9 +46,6 @@ class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
     agent match {
       case Some(a) => {
         assert(a.host == testAgent.host)
-        assert(a.cpus == testAgent.cpus)
-        assert(a.totalMem == testAgent.totalMem)
-        assert(a.virtualType == testAgent.virtualType)
       }
       case None => fail("Failed fetching agent")
     }

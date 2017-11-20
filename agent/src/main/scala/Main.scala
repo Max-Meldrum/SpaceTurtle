@@ -32,7 +32,7 @@ object Main extends App with LazyLogging {
   def zookeeperSetup(): Unit = {
     ZkClient.connect() match {
       case true => {
-        val agent = Agent("test", 2, 2, "", 2)
+        val agent = Agent("test")
         ZkSetup.run()
         ZkClient.joinCluster(agent) match {
           case Success(_) => {

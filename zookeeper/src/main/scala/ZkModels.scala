@@ -16,16 +16,5 @@
 
 package zookeeper
 
-case class Agent(host: String,
-                 cpus: Int,
-                 totalMem: Long,
-                 virtualType: String,
-                 freeMem: Long)
+case class Agent(host: String)
 
-case class Domain(name: String,
-                  title: String,
-                  description: String,
-                  dType: String,
-                  status: String,
-                  memory: Long,
-                  vcpus: Int)

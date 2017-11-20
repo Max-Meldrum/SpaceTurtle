@@ -19,37 +19,34 @@ package agent
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
-import io.circe.generic.auto._
-import io.circe.syntax._
 import zookeeper.ZkClient.ZooKeeperClient
-import zookeeper.{Domain, ZkClient, ZkPaths}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import zookeeper.{Agent, ZkPaths}
 
-class Infrastructure()(implicit zk: ZooKeeperClient)
+
+class MonitorHandler(agent: Agent)(implicit zk: ZooKeeperClient)
   extends ZkPaths with LazyLogging {
 
-  private[this] val path = agentPersistedPath + "/" + "changeme" + "/infrastructure"
-  private[this] val domainPath = path  + "/" + "domain"
-  private[this] val domain = new PathChildrenCache(zk, domainPath, true)
+  private[this] val path = agentPersistedPath + "/" + agent.host
+  private[this] val monitorPath = path  + "/" + "applications"
+  private[this] val cache = new PathChildrenCache(zk, monitorPath, true)
 
   /** Curator recipe that will keep track of specified path and notify us
     * of the changes made to it.
     */
   def createCache(): Unit = {
-    domain.start()
-    addDomainListener(domain)
+    cache.start()
+    addCacheListener(cache)
   }
 
   /** Add listener to PathChildrenCache
     *
     * @param pathCache target cache
     */
-  private def addDomainListener(pathCache: PathChildrenCache): Unit = {
+  private def addCacheListener(pathCache: PathChildrenCache): Unit = {
     val listener = new PathChildrenCacheListener() {
       override def childEvent(client: ZooKeeperClient, event: PathChildrenCacheEvent): Unit = {
         event.getType match {
-          case Type.CHILD_ADDED => newDomainEvent(event)
+          case Type.CHILD_ADDED => logger.info("znode added")
           case Type.CHILD_UPDATED => logger.info("znode updated")
           case Type.CHILD_REMOVED => logger.info("znode removed")
           case Type.CONNECTION_LOST => logger.info("agentCache listener lost connection")
@@ -60,37 +57,10 @@ class Infrastructure()(implicit zk: ZooKeeperClient)
     pathCache.getListenable.addListener(listener)
   }
 
-  /** Fetch Domain cache
+  /** Fetch Monitor cache
     *
     * @return  PathChildrenCache
     */
-  def getDomainCache(): PathChildrenCache = domain
+  def getMonitorCache(): PathChildrenCache = cache
 
-  /** Handle New Domain
-    *
-    * @param event event that happened
-    */
-  private def newDomainEvent(event: PathChildrenCacheEvent): Unit = {
-    val path = event.getData.getPath
-    ZkClient.getDomain(path).onComplete({
-      case Success(result) => {
-        result match {
-          case Left(err) => logger.error(err)
-          case Right(domain) => {
-            ZkClient.updateNode(path, Some(domain.copy(status = "processing").asJson.noSpaces))
-            createDomain(path, domain)
-          }
-        }
-      }
-      case Failure(e) => logger.error(e.toString)
-    })
-  }
-
-  /** Create a Libvirt Domain
-    *
-    * @param path Path to domain so we can update the znode
-    * @param d Domain case class which holds the specs
-    */
-  private def createDomain(path: String, d: Domain): Unit = {
-  }
 }
