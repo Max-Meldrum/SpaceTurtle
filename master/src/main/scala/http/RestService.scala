@@ -18,16 +18,19 @@ package master.http
 
 import akka.http.scaladsl.server.Directives._
 import master.http.routes.{AgentRoute, HealthRoute}
+import utils.ApiVersion
 import zookeeper.ZkClient.ZooKeeperClient
+
 import scala.concurrent.ExecutionContext
 
-class RestService()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient) {
+class RestService()(implicit val ec: ExecutionContext, implicit val zk: ZooKeeperClient)
+  extends ApiVersion {
   private[this] val agentRoute = new AgentRoute()
   private[this] val healthRoute = new HealthRoute()
 
   val route =
     pathPrefix("api") {
-      pathPrefix("v1") {
+      pathPrefix(version) {
         agentRoute.route~
         healthRoute.route
       }

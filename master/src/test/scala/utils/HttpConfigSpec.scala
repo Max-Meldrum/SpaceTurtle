@@ -17,11 +17,16 @@
 package master.utils
 
 import master.BaseSpec
+import utils.ApiVersion
 
-class HttpConfigSpec extends BaseSpec with HttpConfig {
+class HttpConfigSpec extends BaseSpec with HttpConfig with ApiVersion {
 
   test("Http config loads correctly") {
     assert(port > 0 && port <= 65535)
     assert(!interface.isEmpty)
+  }
+
+  test("Api version exists") {
+    assert(!version.isEmpty)
   }
 }

@@ -36,7 +36,9 @@ class HealthRoute()(implicit val ec: ExecutionContext, implicit val zk: ZooKeepe
     path("zookeeper") {
       get {
         extractClientIP { ip =>
-          val remoteHost = ip.toOption.map(_.getHostAddress).getOrElse("unknown")
+          val remoteHost = ip.toOption
+            .map(_.getHostAddress)
+            .getOrElse("unknown")
           logger.info("Client: " + remoteHost + " Checking health of zookeeper")
           complete(getHealth())
         }

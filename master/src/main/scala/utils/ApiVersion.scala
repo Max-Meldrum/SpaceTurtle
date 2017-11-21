@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-package http.routes
+package utils
 
-import akka.http.scaladsl.model.StatusCodes
-import master.HttpSpec
-import utils.ApiVersion
 
-class HealthRouteSpec extends HttpSpec with ApiVersion {
-
-  "Health route" should {
-    "check health of zookeeper" in {
-      Get(s"/api/${version}/health/zookeeper") ~> route ~> check {
-        status shouldEqual StatusCodes.OK
-        responseAs[String] shouldEqual "up"
-      }
-    }
-  }
-
+trait ApiVersion {
+  val version = "v1"
 }
-
