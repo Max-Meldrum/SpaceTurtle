@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package zookeeper
+package core
 
-import org.scalatest.FunSuite
+import org.apache.curator.framework.recipes.leader.LeaderLatch
+import utils.AgentConfig
+import zookeeper.Agent
+import zookeeper.ZkClient.ZooKeeperClient
 
-/**
-  * Base Trait For All Testing
-  */
-trait BaseSpec extends FunSuite {
 
+class LeaderElection(agent: Agent)(implicit zk: ZooKeeperClient) extends AgentConfig {
+  private[this] val leaderLatch = new LeaderLatch(zk, electionPath, agent.id)
+
+
+  def startLatch() = leaderLatch.start
+  def closeLatch() = leaderLatch.close
+  def getParticipants() = leaderLatch.getParticipants
+  def isLeader() = leaderLatch.hasLeadership
 }

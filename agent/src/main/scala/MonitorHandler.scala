@@ -62,5 +62,4 @@ class MonitorHandler(agent: Agent)(implicit zk: ZooKeeperClient)
     * @return  PathChildrenCache
     */
   def getMonitorCache(): PathChildrenCache = cache
-
 }

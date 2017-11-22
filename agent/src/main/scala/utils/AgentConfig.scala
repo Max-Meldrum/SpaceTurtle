@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package zookeeper
+package utils
 
-import org.scalatest.FunSuite
+import zookeeper.ZkPaths
 
-/**
-  * Base Trait For All Testing
-  */
-trait BaseSpec extends FunSuite {
 
+trait AgentConfig extends ZkPaths {
+  val electionPath = agentsPath + "election"
 }

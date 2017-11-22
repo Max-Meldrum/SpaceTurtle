@@ -16,11 +16,11 @@
 
 package zookeeper
 
-import org.scalatest.FunSuite
-
-/**
-  * Base Trait For All Testing
-  */
-trait BaseSpec extends FunSuite {
-
+trait TestUtils extends ZkPaths {
+  val testAgent = Agent("testHost", "node-1")
+  val testAgentTwo = Agent("testHost2", "node-2")
+  val testSessionPath = agentSessionPath + "/" + testAgent.host
+  val testPersistentPath = agentPersistedPath + "/" + testAgent.host
 }
+
+trait ZkSpec extends BaseSpec with TestUtils

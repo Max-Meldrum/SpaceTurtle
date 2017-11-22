@@ -16,5 +16,5 @@
 
 package zookeeper
 
-case class Agent(host: String)
+case class Agent(host: String, id: String)
 

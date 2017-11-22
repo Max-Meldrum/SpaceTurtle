@@ -22,11 +22,9 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ZkClientSpec extends BaseSpec with ZkPaths with BeforeAndAfterAll {
+class ZkClientSpec extends BaseSpec with ZkPaths
+  with BeforeAndAfterAll with ZkSpec {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
-  val testAgent = Agent("testHost")
-  val testSessionPath = agentSessionPath + "/" + testAgent.host
-  val testPersistentPath = agentPersistedPath + "/" + testAgent.host
 
   override def beforeAll(): Unit = ZkSetup.run()
   override def afterAll(): Unit = ZkSetup.clean()
