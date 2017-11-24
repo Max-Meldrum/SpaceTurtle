@@ -17,38 +17,24 @@
 package core
 
 import org.scalatest.BeforeAndAfterAll
-import zookeeper._
+import utils.{Leader, Worker}
+import zookeeper.{BaseSpec, ZkSetup, ZkSpec, ZkTestClient}
 
 
-class LeaderElectionSpec extends BaseSpec with BeforeAndAfterAll with ZkSpec {
+class CoordinatorSpec extends BaseSpec with BeforeAndAfterAll with ZkSpec {
   implicit val zk = ZkTestClient.zkCuratorFrameWork
 
   override def beforeAll(): Unit = ZkSetup.run()
   override def afterAll(): Unit = ZkSetup.clean()
 
 
-  test("Simple leader election") {
-    val node1 = new LeaderElection(testAgent)
-    node1.startLatch()
-    assert(node1.isLeader())
-    node1.closeLatch()
-  }
-
-  test("Leader takeover") {
-    val node1 = new LeaderElection(testAgent)
-    node1.startLatch()
-    assert(node1.isLeader())
-
-    val node2 = new LeaderElection(testAgentTwo)
-    node2.startLatch()
-    assert(!node2.isLeader())
-
-    // Kill first node and see that node2 takes over as leader..
-    node1.closeLatch()
-    Thread.sleep(500)
-    assert(node2.isLeader())
-
-    // Clean other latch as well
-    node2.closeLatch()
+  test("Coordinator setup") {
+    val leaderElection = new LeaderElection(testAgent)
+    val coordinator = new Coordinator(leaderElection)
+    assert(coordinator.getState() == Worker)
+    leaderElection.startLatch()
+    coordinator.start(coordinator.getState())
+    assert(coordinator.getState() == Leader)
+    leaderElection.closeLatch()
   }
 }
