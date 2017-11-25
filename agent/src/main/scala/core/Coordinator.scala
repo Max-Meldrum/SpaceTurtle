@@ -18,6 +18,7 @@ package core
 
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.recipes.leader.LeaderLatchListener
 import org.apache.curator.framework.state.{ConnectionState, ConnectionStateListener}
 import utils.{Leader, Role, Worker}
 import zookeeper.ZkClient.ZooKeeperClient
@@ -25,6 +26,7 @@ import zookeeper.ZkClient.ZooKeeperClient
 
 class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends LazyLogging {
   private[this] var connectionStateListener = None: Option[ConnectionStateListener]
+  private[this] var leaderMonitor = None: Option[LeaderMonitor]
 
   /** Starts the execution of the Agent Coordinator
     *
@@ -34,12 +36,36 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
     role match {
       case Leader => {
         connectionStateListener = Some(leaderListener())
+        leaderMonitor = Some(new LeaderMonitor())
       }
       case Worker => {
         connectionStateListener = Some(workerListener())
       }
     }
     zk.getConnectionStateListenable.addListener(connectionStateListener.get)
+
+    latch.getLatch().addListener(new LeaderLatchListener {
+      override def isLeader: Unit = {
+        logger.info("Taking over as leader")
+        leaderMonitor match {
+          case Some(m) =>
+            m.createCache()
+          case None =>
+            leaderMonitor = Some(new LeaderMonitor())
+            leaderMonitor.get.
+              createCache()
+        }
+      }
+
+      override def notLeader(): Unit = {
+        logger.info("Not Leader any longer")
+        leaderMonitor match {
+          case Some(m) => m.closeCache()
+          case None => leaderMonitor = Some(new LeaderMonitor())
+        }
+
+      }
+    })
   }
 
   private def leaderListener(): ConnectionStateListener = {

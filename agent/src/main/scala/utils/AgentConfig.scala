@@ -20,5 +20,5 @@ import zookeeper.ZkPaths
 
 
 trait AgentConfig extends ZkPaths {
-  val electionPath = agentsPath + "/" + "election"
+  //val electionPath = agentsPath + "/" + "election"
 }

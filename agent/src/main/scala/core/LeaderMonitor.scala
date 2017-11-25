@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package agent
+package core
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
+import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import zookeeper.ZkClient.ZooKeeperClient
-import zookeeper.{Agent, ZkPaths}
+import zookeeper.{ZkPaths}
 
-
-class MonitorHandler(agent: Agent)(implicit zk: ZooKeeperClient)
+/** Leader monitors all agents and handles failures
+  * by moving responsibility from the dead agent to another one
+  */
+class LeaderMonitor()(implicit zk: ZooKeeperClient)
   extends ZkPaths with LazyLogging {
 
-  private[this] val path = agentPersistedPath + "/" + agent.host
-  private[this] val monitorPath = path  + "/" + "applications"
-  private[this] val cache = new PathChildrenCache(zk, monitorPath, true)
+  // Leader monitors current sessions
+  private[this] val path = agentSessionPath
+  private[this] val cache = new PathChildrenCache(zk, path, true)
 
   /** Curator recipe that will keep track of specified path and notify us
     * of the changes made to it.
@@ -62,4 +64,9 @@ class MonitorHandler(agent: Agent)(implicit zk: ZooKeeperClient)
     * @return  PathChildrenCache
     */
   def getMonitorCache(): PathChildrenCache = cache
+
+  def closeCache(): Unit = {
+    cache.clearAndRefresh()
+    cache.close()
+  }
 }

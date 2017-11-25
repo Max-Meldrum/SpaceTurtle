@@ -28,6 +28,7 @@ object ZkSetup extends ZkPaths {
     create(agentsPath)
     create(agentPersistedPath)
     create(agentSessionPath)
+    create(electionPath)
   }
 
   /** Clean znodes
@@ -38,6 +39,7 @@ object ZkSetup extends ZkPaths {
     delete(agentsPath)
     delete(agentPersistedPath)
     delete(agentSessionPath)
+    delete(electionPath)
   }
 
   private def create(path: String)(implicit zk: ZooKeeperClient): Unit = {

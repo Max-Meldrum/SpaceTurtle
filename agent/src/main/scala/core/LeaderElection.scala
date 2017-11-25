@@ -20,13 +20,13 @@ package core
 import java.util.concurrent.TimeUnit
 
 import org.apache.curator.framework.recipes.leader.LeaderLatch
-import utils.AgentConfig
-import zookeeper.Agent
+import zookeeper.{Agent, ZkPaths}
 import zookeeper.ZkClient.ZooKeeperClient
+
 import collection.JavaConverters._
 
 
-class LeaderElection(agent: Agent)(implicit zk: ZooKeeperClient) extends AgentConfig {
+class LeaderElection(agent: Agent)(implicit zk: ZooKeeperClient) extends ZkPaths {
   private[this] val leaderLatch = new LeaderLatch(zk, electionPath, agent.host)
 
 
@@ -36,6 +36,7 @@ class LeaderElection(agent: Agent)(implicit zk: ZooKeeperClient) extends AgentCo
   }
   def closeLatch(): Unit = leaderLatch.close
   def isLeader(): Boolean = leaderLatch.hasLeadership
+  def getLatch(): LeaderLatch = leaderLatch
 
   def exists(): Boolean = leaderLatch.getParticipants
     .asScala

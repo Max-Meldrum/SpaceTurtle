@@ -23,4 +23,5 @@ trait ZkPaths {
   val agentsPath = "/agents"
   val agentSessionPath = "/agents/session"
   val agentPersistedPath = "/agents/persisted"
+  val electionPath = agentsPath + "/" + "election"
 }
