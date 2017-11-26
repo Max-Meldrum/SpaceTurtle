@@ -7,9 +7,6 @@ jdk:
 - oraclejdk8
 install:
   - sudo apt-get update -qq
-  - sudo apt-get install qemu-system qemu-kvm libvirt-bin virtinst bridge-utils cpu-checker
-  - sudo mv $TRAVIS_BUILD_DIR/conf/libvirtd.conf /etc/libvirt/libvirtd.conf
-  - sudo service libvirt-bin restart
 script:
  - sbt -jvm-opts travis/jvmopts.compile compile
  - sbt -jvm-opts travis/jvmopts.test test
