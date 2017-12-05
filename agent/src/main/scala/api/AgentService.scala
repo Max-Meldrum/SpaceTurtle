@@ -20,18 +20,19 @@ import java.util.concurrent.TimeUnit
 
 import com.typesafe.scalalogging.LazyLogging
 import core.{Coordinator, LeaderElection}
-import models.{AgentState}
+import models.AgentState
 import org.http4s._
 import org.http4s.dsl._
-import utils.{Leader, Worker}
-import zookeeper.{Agent, ZkClient, ZkSetup}
+import utils.{AgentConfig, Leader, Worker}
+import zookeeper.{Agent, Application, ZkClient, ZkSetup}
 import io.circe.syntax._
 import org.http4s.circe._
 
 import scala.util.{Failure, Success}
 
 
-object AgentService extends Encoders with LazyLogging {
+object AgentService extends Encoders with LazyLogging
+  with AgentConfig with Endpoints {
   implicit val zk = ZkClient.zkCuratorFrameWork
   private[this] val agent = Agent("test", "node-1")
   private[this] val leader = new LeaderElection(agent)
@@ -49,7 +50,7 @@ object AgentService extends Encoders with LazyLogging {
         registration()
       case false =>
         logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
-        shutdown
+        shutdown()
     }
 
     def registration(): Unit = {
@@ -61,7 +62,7 @@ object AgentService extends Encoders with LazyLogging {
           leader.exists() match {
             case true =>
               logger.error(s"Something went wrong, ${agent.host} is already in the leader latch")
-              shutdown
+              shutdown()
             case false =>
               leader.startLatch()
               leader.isLeader() match {
@@ -72,24 +73,31 @@ object AgentService extends Encoders with LazyLogging {
         }
         case Failure(e) =>
           logger.error("Error occurred, " + e.toString)
-          shutdown
+          shutdown()
       }
     }
   }
 
-  private def shutdown = System.exit(0)
+  private def shutdown() = System.exit(0)
 
 
   val main = HttpService {
-    case GET -> Root / "hello" / name =>
-      Ok(s"Hello, $name.")
-    case GET -> Root / "status" =>
+    case GET -> Root / `status` =>
       val t = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime)
       val uptime = t + " seconds"
       coordinator.getState() match {
-        case Leader => Ok(AgentState(uptime, "Leader").asJson)
-        case Worker => Ok(AgentState(uptime, "Worker").asJson)
+        case Leader => Ok(AgentState(uptime, "Leader", version).asJson)
+        case Worker => Ok(AgentState(uptime, "Worker", version).asJson)
       }
+    case req @ POST -> Root /  `register` =>
+      for {
+        app <- req.as(jsonOf[Application])
+        res <- Client.registerApp(agent, app)
+        resp <- Ok(res match {
+          case true => app.name
+          case false => "Could not register app"
+        })
+      } yield resp
   }
 
 }

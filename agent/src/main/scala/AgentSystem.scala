@@ -20,16 +20,17 @@ import api.AgentService
 import fs2.{Stream, Task}
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.util.StreamApp
+import utils.AgentConfig
 
 
 /** Main Starting Point of Program
   * Sets upp the REST server
   */
-object AgentSystem extends StreamApp {
+object AgentSystem extends StreamApp with AgentConfig {
   override def stream(args: List[String]): Stream[Task, Nothing] = {
     BlazeBuilder
-      .bindHttp(8080, "localhost")
-      .mountService(AgentService.main)
+      .bindHttp(port, host)
+      .mountService(AgentService.main, s"/api/${version}")
       .serve
   }
 }

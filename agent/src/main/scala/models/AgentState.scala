@@ -16,5 +16,5 @@
 
 package models
 
-case class AgentState(uptime: String, role: String)
+case class AgentState(uptime: String, role: String, version: String)
 

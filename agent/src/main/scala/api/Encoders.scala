@@ -19,9 +19,11 @@ package api
 
 import models.AgentState
 import org.http4s.circe._
+import zookeeper.Application
 
 
 trait Encoders {
   import io.circe.generic.auto._
-  implicit val state = jsonOf[AgentState]
+  implicit val stateEncoder = jsonOf[AgentState]
+  implicit val appEncoder = jsonOf[Application]
 }

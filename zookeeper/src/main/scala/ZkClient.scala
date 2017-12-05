@@ -89,11 +89,9 @@ object ZkClient extends ZkClient with ZkPaths with LazyLogging {
     * @param path target path
     * @param zk ZooKeeper client
     */
-  def createNode(path: String, data: Option[String] = None)(implicit zk: ZooKeeperClient) : Unit = {
-    nodeExists(path) match {
-      case false => zk.create().creatingParentsIfNeeded().forPath(path, data.getOrElse("").getBytes)
-      case true => logger.info("Path already exists " + path)
-    }
+  def createNode(path: String, data: Option[String] = None)(implicit zk: ZooKeeperClient) : Boolean = {
+    Option(zk.create().creatingParentsIfNeeded().forPath(path, data.getOrElse("").getBytes))
+      .isDefined
   }
 
   /** Deletes ZooKeeper znode

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package zookeeper
+package api
 
-case class Agent(host: String, id: String)
-case class Application(name: String, id: String)
 
+trait Endpoints {
+  val register = "register"
+  val status = "status"
+  val unregister = "unregister"
+}

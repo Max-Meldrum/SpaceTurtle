@@ -16,9 +16,10 @@
 
 package utils
 
-import zookeeper.ZkPaths
 
-
-trait AgentConfig extends ZkPaths {
-  //val electionPath = agentsPath + "/" + "election"
+trait AgentConfig {
+  // Load from config later on..
+  val port = 8080
+  val host = "localhost"
+  val version = "v2"
 }
