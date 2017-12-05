@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package agent
 
-import api.AgentService
-import fs2.{Stream, Task}
-import org.http4s.server.blaze.BlazeBuilder
-import org.http4s.util.StreamApp
+package api
+
+import models.AgentState
+import org.http4s.circe._
 
 
-/** Main Starting Point of Program
-  * Sets upp the REST server
-  */
-object AgentSystem extends StreamApp {
-  override def stream(args: List[String]): Stream[Task, Nothing] = {
-    BlazeBuilder
-      .bindHttp(8080, "localhost")
-      .mountService(AgentService.main)
-      .serve
-  }
+trait Encoders {
+  import io.circe.generic.auto._
+  implicit val state = jsonOf[AgentState]
 }

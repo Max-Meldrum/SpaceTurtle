@@ -16,21 +16,30 @@
 
 package api
 
+import java.util.concurrent.TimeUnit
+
 import com.typesafe.scalalogging.LazyLogging
 import core.{Coordinator, LeaderElection}
+import models.{AgentState}
 import org.http4s._
 import org.http4s.dsl._
 import utils.{Leader, Worker}
 import zookeeper.{Agent, ZkClient, ZkSetup}
+import io.circe.syntax._
+import org.http4s.circe._
 
 import scala.util.{Failure, Success}
 
 
-object AgentService extends LazyLogging {
+object AgentService extends Encoders with LazyLogging {
   implicit val zk = ZkClient.zkCuratorFrameWork
   private[this] val agent = Agent("test", "node-1")
   private[this] val leader = new LeaderElection(agent)
   private[this] val coordinator = new Coordinator(leader)
+  private[this] val startTime = System.currentTimeMillis()
+
+  // To handle JSON decoding..
+  import io.circe.generic.auto._
 
   setup()
 
@@ -71,13 +80,15 @@ object AgentService extends LazyLogging {
   private def shutdown = System.exit(0)
 
 
-  val helloWorldService = HttpService {
+  val main = HttpService {
     case GET -> Root / "hello" / name =>
       Ok(s"Hello, $name.")
     case GET -> Root / "status" =>
+      val t = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime)
+      val uptime = t + " seconds"
       coordinator.getState() match {
-        case Leader => Ok("Leader")
-        case Worker => Ok("Worker")
+        case Leader => Ok(AgentState(uptime, "Leader").asJson)
+        case Worker => Ok(AgentState(uptime, "Worker").asJson)
       }
   }
 
