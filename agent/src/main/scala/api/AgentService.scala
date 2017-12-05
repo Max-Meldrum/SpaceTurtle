@@ -28,16 +28,16 @@ import scala.util.{Failure, Success}
 
 object AgentService extends LazyLogging {
   implicit val zk = ZkClient.zkCuratorFrameWork
-  private val agent = Agent("test", "node-1")
-  private val leader = new LeaderElection(agent)
+  private[this] val agent = Agent("test", "node-1")
+  private[this] val leader = new LeaderElection(agent)
   private[this] val coordinator = new Coordinator(leader)
 
   setup()
 
   private def setup(): Unit = {
-
     ZkClient.connect() match {
-      case true => registration()
+      case true =>
+        registration()
       case false =>
         logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
         shutdown
@@ -48,7 +48,6 @@ object AgentService extends LazyLogging {
       ZkClient.joinCluster(agent) match {
         case Success(_) => {
           logger.info("ZooKeeper session is now active")
-          println("now active")
           ZkClient.registerAgent(agent)
           leader.exists() match {
             case true =>
@@ -69,9 +68,7 @@ object AgentService extends LazyLogging {
     }
   }
 
-  // Just beautiful..
-  // TODO: fix
-  private def shutdown = System.exit(1)
+  private def shutdown = System.exit(0)
 
 
   val helloWorldService = HttpService {
