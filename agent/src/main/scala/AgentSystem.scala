@@ -16,61 +16,20 @@
 
 package agent
 
-import com.typesafe.scalalogging.LazyLogging
-import core.{Coordinator, LeaderElection}
-import utils.{Leader, Worker}
-import zookeeper.{Agent, ZkClient, ZkSetup}
+import api.AgentService
+import fs2.{Stream, Task}
+import org.http4s.server.blaze.BlazeBuilder
+import org.http4s.util.StreamApp
 
-import scala.util.{Failure, Success}
 
 /** Main Starting Point of Program
-  *
-  * Starts the agent and joins the cluster,
-  * by creating a session to ZooKeeper
+  * Sets upp the REST server
   */
-object AgentSystem extends App with LazyLogging {
-  implicit val zk = ZkClient.zkCuratorFrameWork
-  private val agent = Agent("test", "node-1")
-  private val leaderElection = new LeaderElection(agent)
-
-  run()
-
-  def run(): Unit = {
-    ZkClient.connect() match {
-      case true => agentSetup()
-      case false => logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
-    }
-
-    // Make sure our agent's leader latch is removed
-    leaderElection.closeLatch()
-
-    // Close CuratorFramework at end
-    if (ZkClient.isConnected())
-      zk.close()
+object AgentSystem extends StreamApp {
+  override def stream(args: List[String]): Stream[Task, Nothing] = {
+    BlazeBuilder
+      .bindHttp(8080, "localhost")
+      .mountService(AgentService.helloWorldService)
+      .serve
   }
-
-  private def agentSetup(): Unit = {
-    ZkSetup.run()
-    ZkClient.joinCluster(agent) match {
-      case Success(_) => {
-        logger.info("ZooKeeper session is now active")
-        ZkClient.registerAgent(agent)
-        leaderElection.exists() match {
-          case true => logger.error(s"Something went wrong, ${agent.host} is already in the leader latch")
-          case false => systemExecution()
-        }
-      }
-      case Failure(e) => logger.error("Error occurred, " + e.toString)
-    }
-  }
-
-  private def systemExecution(): Unit = {
-    val coordinator = new Coordinator(leaderElection)
-    leaderElection.startLatch()
-    leaderElection.isLeader() match {
-      case true => coordinator.start(Leader)
-      case false => coordinator.start(Worker)
-    }
-  }
-
 }

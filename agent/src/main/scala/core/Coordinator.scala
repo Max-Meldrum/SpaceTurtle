@@ -98,6 +98,7 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
     l
   }
 
+
   def getState(): Role = {
     latch.isLeader() match {
       case true => Leader

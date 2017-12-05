@@ -25,6 +25,8 @@ object Dependencies {
   val akkaHttpVersion = "10.0.10"
   val akkaHttpCirceVersion = "1.18.0"
   val circeVersion = "0.8.0"
+  val http4sVersion = "0.17.5"
+
 
   val logDependencies: Seq[ModuleID] = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
@@ -52,6 +54,12 @@ object Dependencies {
     "io.circe" %% "circe-parser"
   ).map(_ % circeVersion)
 
+  val http4sDependencies: Seq[ModuleID] = Seq(
+    "org.http4s" %% "http4s-dsl",
+    "org.http4s" %% "http4s-blaze-server",
+    "org.http4s" %% "http4s-circe"
+  ).map(_ % http4sVersion)
+
   val akkaHttpDependencies: Seq[ModuleID] = Seq(
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
@@ -63,7 +71,7 @@ object Dependencies {
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] = common ++ circeDependencies
-  val agentDependencies : Seq[ModuleID] = common
+  val agentDependencies : Seq[ModuleID] = common ++ http4sDependencies
   val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
 }

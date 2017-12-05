@@ -35,7 +35,7 @@ lazy val agent = (project in file("agent"))
   .dependsOn(zookeeper % "test->test;compile->compile")
   .settings(agentSettings: _*)
   .settings(
-    mainClass in assembly := Some("agent.Main"),
+    mainClass in assembly := Some("agent.AgentSystem"),
     assemblyJarName in assembly := "agent.jar" ,
     libraryDependencies ++= Dependencies.agentDependencies
   )
