@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-
-package api
-
-import models.AgentState
-import org.http4s.circe._
-import zookeeper.Application
+package models
 
 
-trait Encoders {
-  import io.circe.generic.auto._
-  implicit val stateEncoder = jsonOf[AgentState]
-  implicit val appEncoder = jsonOf[Application]
-}
+case class GeneralResponse(msg: String)

@@ -18,7 +18,7 @@ package api
 
 
 trait Endpoints {
-  val register = "register"
-  val status = "status"
-  val unregister = "unregister"
+  val registerEndpoint = "register"
+  val statusEndpoint = "status"
+  val unregisterEndpoint = "unregister"
 }

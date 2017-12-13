@@ -16,89 +16,63 @@
 
 package api
 
+
 import java.util.concurrent.TimeUnit
 
+import akka.http.scaladsl.server.Directives.pathPrefix
 import com.typesafe.scalalogging.LazyLogging
-import core.{Coordinator, LeaderElection}
-import models.AgentState
-import org.http4s._
-import org.http4s.dsl._
+import core.{Coordinator}
 import utils.{AgentConfig, Leader, Worker}
-import zookeeper.{Agent, Application, ZkClient, ZkSetup}
-import io.circe.syntax._
-import org.http4s.circe._
+import zookeeper.{Agent, Application}
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+import models.{AgentState, GeneralResponse}
+import zookeeper.ZkClient.ZooKeeperClient
 
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
 
-object AgentService extends Encoders with LazyLogging
-  with AgentConfig with Endpoints {
-  implicit val zk = ZkClient.zkCuratorFrameWork
-  private[this] val agent = Agent("test", "node-1")
-  private[this] val leader = new LeaderElection(agent)
-  private[this] val coordinator = new Coordinator(leader)
+class AgentService(coordinator: Coordinator, agent: Agent)
+                  (implicit ec: ExecutionContext, zk: ZooKeeperClient)
+  extends LazyLogging with AgentConfig with Endpoints {
   private[this] val startTime = System.currentTimeMillis()
 
-  // To handle JSON decoding..
+  // JSON marshalling/unmarshalling
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
 
-  setup()
 
-  private def setup(): Unit = {
-    ZkClient.connect() match {
-      case true =>
-        registration()
-      case false =>
-        logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
-        shutdown()
+  val route: Route =
+    pathPrefix("api") {
+      pathPrefix(version) {
+        statusRoute~
+        registerRoute
+      }
     }
 
-    def registration(): Unit = {
-      ZkSetup.run()
-      ZkClient.joinCluster(agent) match {
-        case Success(_) => {
-          logger.info("ZooKeeper session is now active")
-          ZkClient.registerAgent(agent)
-          leader.exists() match {
-            case true =>
-              logger.error(s"Something went wrong, ${agent.host} is already in the leader latch")
-              shutdown()
-            case false =>
-              leader.startLatch()
-              leader.isLeader() match {
-                case true => coordinator.start(Leader)
-                case false => coordinator.start(Worker)
-              }
-          }
+  private[this] val statusRoute =
+    pathPrefix(statusEndpoint) {
+      get {
+        val t = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime)
+        val uptime = t + " seconds"
+        coordinator.getState() match {
+          case Leader => complete(AgentState(uptime, "Leader", version))
+          case Worker => complete(AgentState(uptime, "Worker", version))
         }
-        case Failure(e) =>
-          logger.error("Error occurred, " + e.toString)
-          shutdown()
       }
     }
-  }
 
-  private def shutdown() = System.exit(0)
-
-
-  val main = HttpService {
-    case GET -> Root / `status` =>
-      val t = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime)
-      val uptime = t + " seconds"
-      coordinator.getState() match {
-        case Leader => Ok(AgentState(uptime, "Leader", version).asJson)
-        case Worker => Ok(AgentState(uptime, "Worker", version).asJson)
+  private[this] val registerRoute =
+    pathPrefix(registerEndpoint) {
+      post {
+        entity(as[Application]) { app =>
+          complete(AgentClient.registerApp(agent, app)
+            .flatMap {{
+              case true => Future(GeneralResponse("Created"))
+              case false => Future(GeneralResponse("Already exists"))
+            }})
+        }
       }
-    case req @ POST -> Root /  `register` =>
-      for {
-        app <- req.as(jsonOf[Application])
-        res <- Client.registerApp(agent, app)
-        resp <- Ok(res match {
-          case true => app.name
-          case false => "Could not register app"
-        })
-      } yield resp
-  }
-
+    }
 }
 

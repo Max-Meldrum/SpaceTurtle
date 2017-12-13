@@ -1,15 +1,17 @@
 package api
 
-import fs2.{Strategy, Task}
 import zookeeper.ZkClient.ZooKeeperClient
 import zookeeper.{Agent, Application, ZkClient, ZkPaths}
 import io.circe.generic.auto._
 import io.circe.syntax._
 
-object Client extends ZkPaths {
-  implicit val strategy = Strategy.fromExecutionContext(scala.concurrent.ExecutionContext.Implicits.global)
+import scala.concurrent.{ExecutionContext, Future}
 
-  def registerApp(agent: Agent, app: Application)(implicit zk: ZooKeeperClient): Task[Boolean] = Task {
+object AgentClient extends ZkPaths {
+
+  //Exotic
+  def registerApp(agent: Agent, app: Application)
+                 (implicit zk: ZooKeeperClient, ec: ExecutionContext): Future[Boolean] = Future {
     val path = agentPersistedPath + "/" + agent.host + "/" + app.name
     ZkClient.nodeExists(path) match {
       case true => false

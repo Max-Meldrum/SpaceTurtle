@@ -6,6 +6,9 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.1",
   fork in run := true,
   fork in Test := true,
+  // Http4s?
+  scalacOptions ++= Seq("-Ypartial-unification"),
+  //javaOptions += "-Xmx1G",
   cancelable in Global := true,
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
@@ -27,7 +30,11 @@ lazy val masterSettings = commonSettings ++ zookeeperSettings ++ Seq(
 
 lazy val agentSettings = commonSettings ++ zookeeperSettings ++ Seq(
   javaOptions in run ++= Seq(
-    "-Dconfig.file=../conf/agent.conf"
+    "-Dconfig.file=../conf/agent.conf",
+    "-Xmx1G"
+  ),
+  javaOptions in test ++= Seq(
+    "-Xmx1G"
   )
 )
 

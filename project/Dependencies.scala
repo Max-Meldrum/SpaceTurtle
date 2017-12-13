@@ -17,7 +17,7 @@
 import sbt._
 
 object Dependencies {
-  val scalaTestVersion = "3.0.4"
+  val scalaTestVersion = "3.0.1"
   val curatorVersion = "4.0.0"
   val scalaLoggingVersion = "3.5.0"
   val logbackVersion = "1.2.3"
@@ -25,7 +25,6 @@ object Dependencies {
   val akkaHttpVersion = "10.0.10"
   val akkaHttpCirceVersion = "1.18.0"
   val circeVersion = "0.8.0"
-  val http4sVersion = "0.17.5"
 
 
   val logDependencies: Seq[ModuleID] = Seq(
@@ -54,11 +53,6 @@ object Dependencies {
     "io.circe" %% "circe-parser"
   ).map(_ % circeVersion)
 
-  val http4sDependencies: Seq[ModuleID] = Seq(
-    "org.http4s" %% "http4s-dsl",
-    "org.http4s" %% "http4s-blaze-server",
-    "org.http4s" %% "http4s-circe"
-  ).map(_ % http4sVersion)
 
   val akkaHttpDependencies: Seq[ModuleID] = Seq(
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
@@ -71,7 +65,7 @@ object Dependencies {
     logDependencies ++ confDependencies ++ testDependencies ++ curatorDependencies
 
   val zookeeperDependencies: Seq[ModuleID] = common ++ circeDependencies
-  val agentDependencies : Seq[ModuleID] = common ++ http4sDependencies
+  val agentDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val masterDependencies : Seq[ModuleID] = common ++ akkaHttpDependencies ++ circeDependencies
   val cliDependencies : Seq[ModuleID] = agentDependencies
 }

@@ -23,7 +23,7 @@ import org.apache.curator.framework.state.{ConnectionState, ConnectionStateListe
 import utils.{Leader, Role, Worker}
 import zookeeper.ZkClient.ZooKeeperClient
 
-
+//TODO: Clean this puppy
 class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends LazyLogging {
   private[this] var connectionStateListener = None: Option[ConnectionStateListener]
   private[this] var leaderMonitor = None: Option[LeaderMonitor]
