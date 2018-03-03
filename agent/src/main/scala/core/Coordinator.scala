@@ -23,7 +23,7 @@ import org.apache.curator.framework.state.{ConnectionState, ConnectionStateListe
 import utils.{Leader, Role, Worker}
 import zookeeper.ZkClient.ZooKeeperClient
 
-//TODO: Clean this puppy
+//TODO: Implement logic
 class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends LazyLogging {
   private[this] var connectionStateListener = None: Option[ConnectionStateListener]
   private[this] var leaderMonitor = None: Option[LeaderMonitor]
@@ -34,14 +34,13 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
     */
   def start(role: Role): Unit = {
     role match {
-      case Leader => {
+      case Leader =>
         connectionStateListener = Some(leaderListener())
         leaderMonitor = Some(new LeaderMonitor())
-      }
-      case Worker => {
+      case Worker =>
         connectionStateListener = Some(workerListener())
-      }
     }
+
     zk.getConnectionStateListenable.addListener(connectionStateListener.get)
 
     latch.getLatch().addListener(new LeaderLatchListener {
@@ -75,7 +74,7 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
           case ConnectionState.LOST => logger.info("Lost connection to ZooKeeper")
           case ConnectionState.SUSPENDED => logger.info("Connection to ZooKeeper suspended")
           case ConnectionState.CONNECTED => logger.info("Connection to ZooKeeper established")
-          case ConnectionState.RECONNECTED => assignRole(getState())
+          case ConnectionState.RECONNECTED => assignRole(getState)
           case ConnectionState.READ_ONLY => logger.info("Connection in read only mode")
         }
       }
@@ -90,7 +89,7 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
           case ConnectionState.LOST => logger.info("Lost connection to ZooKeeper")
           case ConnectionState.SUSPENDED => logger.info("Connection to ZooKeeper suspended")
           case ConnectionState.CONNECTED => logger.info("Connection to ZooKeeper established")
-          case ConnectionState.RECONNECTED => assignRole(getState())
+          case ConnectionState.RECONNECTED => assignRole(getState)
           case ConnectionState.READ_ONLY => logger.info("Connection in read only mode")
         }
       }
@@ -99,7 +98,7 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
   }
 
 
-  def getState(): Role = {
+  def getState: Role = {
     latch.isLeader() match {
       case true => Leader
       case false => Worker
@@ -107,12 +106,10 @@ class Coordinator(latch: LeaderElection)(implicit zk: ZooKeeperClient) extends L
   }
 
   private def assignRole(role: Role): Unit = {
-    connectionStateListener match {
-      case Some(listener) => zk.getConnectionStateListenable.removeListener(listener)
-      case None =>
-    }
+    connectionStateListener.foreach(zk.getConnectionStateListenable.removeListener(_))
+
     connectionStateListener = Some(
-      role match{
+      role match {
         case Leader => leaderListener()
         case Worker => workerListener()
       })

@@ -31,10 +31,10 @@ class CoordinatorSpec extends BaseSpec with BeforeAndAfterAll with ZkSpec {
   test("Coordinator setup") {
     val leaderElection = new LeaderElection(testAgent)
     val coordinator = new Coordinator(leaderElection)
-    assert(coordinator.getState() == Worker)
+    assert(coordinator.getState == Worker)
     leaderElection.startLatch()
-    coordinator.start(coordinator.getState())
-    assert(coordinator.getState() == Leader)
+    coordinator.start(coordinator.getState)
+    assert(coordinator.getState == Leader)
     leaderElection.closeLatch()
   }
 }

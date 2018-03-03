@@ -55,7 +55,7 @@ class AgentService(coordinator: Coordinator, agent: Agent)
       get {
         val t = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime)
         val uptime = t + " seconds"
-        coordinator.getState() match {
+        coordinator.getState match {
           case Leader => complete(AgentState(uptime, "Leader", version))
           case Worker => complete(AgentState(uptime, "Worker", version))
         }

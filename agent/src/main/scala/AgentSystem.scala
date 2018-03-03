@@ -29,54 +29,50 @@ import scala.util.{Failure, Success}
 
 
 /** Main Starting Point of Program
-  * Sets upp the REST server
+  * Sets up the REST server
   */
 object AgentSystem extends App with LazyLogging with AgentConfig {
   implicit val zk = ZkClient.zkCuratorFrameWork
+  // Test agent for now..
   private[this] val agent = Agent("test", "node-1")
-  private[this] val leader = new LeaderElection(agent)
-  private[this] val coordinator = new Coordinator(leader)
+  private[this] val election = new LeaderElection(agent)
+  private[this] val coordinator = new Coordinator(election)
 
-  val service = setup()
+  // Initialize SpaceTurtle Agent
+  setup()
 
-  private def setup(): Option[AgentService] = {
-    ZkClient.connect() match {
-      case true =>
-        if(register()) {
-          implicit val system = ActorSystem("Agent")
-          implicit val ec = system.dispatcher
-          implicit val materializer = ActorMaterializer()
-          val service = new AgentService(coordinator, agent)
-          logger.info("Setting up SpaceTurtle Agent at " + host + ":" + port)
-          Http().bindAndHandle(service.route, host , port)
-          Some(service)
-        } else {
-          None
-        }
-      case false =>
-        logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
-        None
+  private def setup(): Unit = {
+    if (ZkClient.connect()) {
+      if (register()) {
+        implicit val system = ActorSystem("Agent")
+        implicit val ec = system.dispatcher
+        implicit val materializer = ActorMaterializer()
+        val service = new AgentService(coordinator, agent)
+        logger.info("Setting up SpaceTurtle Agent at " + host + ":" + port)
+        Http().bindAndHandle(service.route, host , port)
+      }
+    } else {
+      logger.error("Failed to establish initial connection to ZooKeeper, shutting down")
     }
   }
 
-  //TODO: Make more pretty...
   private def register(): Boolean = {
     ZkSetup.run()
     ZkClient.joinCluster(agent) match {
       case Success(_) => {
         logger.info("ZooKeeper session is now active")
         ZkClient.registerAgent(agent)
-        leader.exists() match {
-          case true =>
-            logger.error(s"Something went wrong, ${agent.host} is already in the leader latch")
-            false
-          case false =>
-            leader.startLatch()
-            leader.isLeader() match {
-              case true => coordinator.start(Leader)
-              case false => coordinator.start(Worker)
-            }
-            true
+        if (election.agentExists()) {
+          logger.error(s"Something went wrong, ${agent.host} is already in the leader latch")
+          false
+        } else {
+          election.startLatch()
+          if (election.isLeader())
+            coordinator.start(Leader)
+          else
+            coordinator.start(Worker)
+
+          true
         }
       }
       case Failure(e) =>

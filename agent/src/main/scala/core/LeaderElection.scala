@@ -38,7 +38,7 @@ class LeaderElection(agent: Agent)(implicit zk: ZooKeeperClient) extends ZkPaths
   def isLeader(): Boolean = leaderLatch.hasLeadership
   def getLatch(): LeaderLatch = leaderLatch
 
-  def exists(): Boolean = leaderLatch.getParticipants
+  def agentExists(): Boolean = leaderLatch.getParticipants
     .asScala
     .exists(_.getId == agent.host)
 }
